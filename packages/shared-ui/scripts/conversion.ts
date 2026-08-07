@@ -36,7 +36,7 @@ export interface ResolvedValue {
 }
 
 export function convertValue(raw: string, kind: ValueKind, mode: "convert" | "as-is"): ResolvedValue {
-	const asIs = (value: string, className = "", varName: string): ResolvedValue => ({
+	const asIs = (value: string, className: string, varName: string): ResolvedValue => ({
 		value,
 		className,
 		display: `${raw} (as-is)`,
