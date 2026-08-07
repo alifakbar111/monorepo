@@ -107,14 +107,14 @@
 		"caption": { "size": "0.75rem", "lineHeight": "1.5", "weight": "400", "tracking": "0.01em" }
 	},
 	"radius": {
-		"base": { "value": "8px", "mode": "convert" }
+		"base": { "value": "0.6rem", "mode": "as-is" }
 	},
 	"radiusGroups": {
-		"button": { "value": "9999px", "mode": "as-is" },
-		"input": null,
-		"overlay": { "shift": "4px" },
-		"card": { "shift": "4px" },
-		"badge": { "value": "9999px", "mode": "as-is" },
+		"button": { "shift": "-2px" },
+		"input": { "shift": "-2px" },
+		"overlay": { "shift": "-2px" },
+		"card": null,
+		"badge": { "shift": "-2px" },
 		"surface": null,
 		"typography": null
 	},
@@ -135,7 +135,7 @@
 		"form": { "group": "input" },
 		"toggle": { "group": "input" },
 		"toggle-group": { "group": "input" },
-		"dialog": { "group": "overlay", "radius": { "shift": "2px" }, "sizes": { "sm": { "width": { "value": "600px", "mode": "convert" } }, "lg": { "width": { "value": "1200px", "mode": "convert" } } } },
+		"dialog": { "group": "overlay", "radius": { "value": "0.6rem", "mode": "as-is" }, "sizes": { "sm": { "width": { "value": "600px", "mode": "convert" } }, "lg": { "width": { "value": "1200px", "mode": "convert" } } } },
 		"alert-dialog": { "group": "overlay" },
 		"drawer": { "group": "overlay" },
 		"sheet": { "group": "overlay" },

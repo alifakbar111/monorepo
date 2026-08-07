@@ -3,14 +3,14 @@ import { tv, type VariantProps } from "tailwind-variants/lite";
 export const selectStyles = tv({
 	slots: {
 		trigger: [
-			"flex h-9 w-full items-center justify-between whitespace-nowrap rounded border border-input",
+			"flex h-9 w-full items-center justify-between whitespace-nowrap rounded-input border border-input",
 			"bg-transparent px-3 py-2 text-body shadow-xs ring-offset-background placeholder:text-muted-foreground",
 			"focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
 			"[&>span]:line-clamp-1",
 		],
 		icon: "size-4 opacity-50",
 		content: [
-			"relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded border bg-popover text-popover-foreground shadow-md",
+			"relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-input border bg-popover text-popover-foreground shadow-md",
 			// Entry animations
 			"data-[state=open]:motion-safe:motion-opacity-in-0",
 			"data-[state=open]:motion-safe:motion-scale-in-95",
@@ -31,7 +31,7 @@ export const selectStyles = tv({
 		scrollButton: "flex cursor-default items-center justify-center py-1",
 		label: "px-2 py-1.5 font-semibold text-body",
 		item: [
-			"relative flex w-full cursor-default select-none items-center rounded py-1.5 pr-8 pl-2",
+			"relative flex w-full cursor-default select-none items-center rounded-input py-1.5 pr-8 pl-2",
 			"text-body outline-none focus:bg-accent focus:text-accent-foreground",
 			"data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 		],

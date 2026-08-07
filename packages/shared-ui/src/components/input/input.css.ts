@@ -5,7 +5,7 @@ export const inputStyles = tv({
 		wrapper: "relative",
 		wrapperWithCopy: "flex gap-2",
 		input: [
-			"flex h-9 w-full rounded border border-input bg-transparent px-3 py-1 text-body shadow-xs transition-colors",
+			"flex h-9 w-full rounded-input border border-input bg-transparent px-3 py-1 text-body shadow-xs transition-colors",
 			"file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-body placeholder:text-muted-foreground/60",
 			"focus:ring-0 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50",
 			"disabled:cursor-not-allowed disabled:opacity-50",

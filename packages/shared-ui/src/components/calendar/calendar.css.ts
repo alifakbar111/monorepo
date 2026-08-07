@@ -19,7 +19,7 @@ export const calendarStyles = tv({
 		],
 		month_grid: "mt-4 w-full border-collapse space-y-1",
 		weekdays: "flex",
-		weekday: "w-8 rounded font-normal text-[0.8rem] text-muted-foreground",
+		weekday: "w-8 rounded-input font-normal text-[0.8rem] text-muted-foreground",
 		week: "mt-2 flex w-full",
 		cell: [
 			"relative p-0 text-center text-body focus-within:relative focus-within:z-20",
@@ -33,16 +33,16 @@ export const calendarStyles = tv({
 			"first:[&:has([aria-selected])]:rounded-l-sm",
 			"last:[&:has([aria-selected])]:rounded-r-sm",
 		],
-		cell_single: "[&:has([aria-selected])]:rounded",
+		cell_single: "[&:has([aria-selected])]:rounded-input",
 		day_button: [
 			buttonStyles({ variant: "ghost" }).base(),
-			"size-8 rounded p-0 font-normal aria-selected:opacity-100",
+			"size-8 rounded-input p-0 font-normal aria-selected:opacity-100",
 		],
 		range_start: "day-range-start",
 		range_end: "day-range-end",
 		selected:
-			"rounded bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-		today: "rounded bg-accent text-accent-foreground",
+			"rounded-input bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+		today: "rounded-input bg-accent text-accent-foreground",
 		outside:
 			"day-outside text-muted-foreground aria-selected:bg-accent/50 aria-selected:text-muted-foreground",
 		disabled: "text-muted-foreground opacity-50",
