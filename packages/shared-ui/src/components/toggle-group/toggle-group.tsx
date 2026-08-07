@@ -9,7 +9,11 @@ const ToggleGroupContext = React.createContext<ToggleVariants>({
 	variant: "default",
 });
 
-type ToggleGroupProps = React.ComponentPropsWithoutRef<"div"> & ToggleVariants;
+type ToggleGroupProps = React.ComponentPropsWithoutRef<"div"> &
+	ToggleVariants & {
+		/** @radix-ui/react-toggle-group: "single" | "multiple" (defaults to "single") */
+		type?: "single" | "multiple";
+	};
 
 const ToggleGroup = React.forwardRef<HTMLDivElement, ToggleGroupProps>(
 	({ className, variant, size, children, ...props }, ref) => {

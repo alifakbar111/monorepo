@@ -21,9 +21,18 @@
 		"strict": true,
 		"target": "esnext",
 		"tsBuildInfoFile": "node_modules/tsconfig.tsbuildinfo",
-		"verbatimModuleSyntax": true,
-		"baseUrl": "."
+		"verbatimModuleSyntax": true
 	},
-	"include": ["src", ".storybook"],
-	"exclude": ["node_modules", "build", "dist", "storybook-static", "tmp"]
+	// scripts + tests + vitest.config.ts were previously NOT included → untypechecked.
+	// Adding them keeps a SINGLE composite project: `src/preset/**` → `../../scripts/types`
+	// imports now resolve inside the same project's file list → TS6307 is gone (no separate
+	// project reference or paths mapping needed).
+	// `src` is a RECURSIVE glob, so it covers every file later tasks edit: all 44
+	// `components/**/*.css.ts` (incl. `toggle-group/toggle-group.css.ts`), every
+	// `.stories.tsx` (incl. `toggle-group/toggle-group.stories.tsx` — the second file
+	// Task 0 Step 3 fixes), and `toggle-group/toggle-group.tsx`. Do NOT narrow this
+	// list without re-adding those files, or the widened gate silently stops covering
+	// the very files these plans modify.
+	"include": ["src", "scripts", "tests", "vitest.config.ts", ".storybook"],
+	"exclude": ["node_modules", "build", "dist", "dist-preset", "storybook-static", "tmp"]
 }
