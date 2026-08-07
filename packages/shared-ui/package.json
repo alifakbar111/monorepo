@@ -25,6 +25,7 @@
         "typecheck": "tsc --noEmit",
         "test": "vitest run",
         "test:watch": "vitest",
+        "preset": "vite --config vite.preset.config.ts",
         "preset:build": "tsx scripts/cli-build.ts",
         "preset:codemod": "tsx scripts/cli-codemod.ts",
         "preset:reset": "tsx scripts/cli-reset.ts",
