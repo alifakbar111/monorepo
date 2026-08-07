@@ -24,7 +24,11 @@
         "check": "oxlint --fix . && oxfmt .",
         "typecheck": "tsc --noEmit",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "preset:build": "tsx scripts/cli-build.ts",
+        "preset:codemod": "tsx scripts/cli-codemod.ts",
+        "preset:reset": "tsx scripts/cli-reset.ts",
+        "preset:check": "tsx scripts/cli-check.ts"
     },
     "dependencies": {
         "@nanostores/persistent": "^1.3.3",
