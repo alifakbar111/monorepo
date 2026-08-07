@@ -3,12 +3,12 @@ import { tv, type VariantProps } from "tailwind-variants/lite";
 export const contextMenuStyles = tv({
 	slots: {
 		trigger: [
-			"flex cursor-default select-none items-center rounded-xs px-2 py-1.5 text-sm",
+			"flex cursor-default select-none items-center rounded-overlay px-2 py-1.5 text-body",
 			"outline-none focus:bg-accent focus:text-accent-foreground",
 			"data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
 		],
 		content: [
-			"z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-sm",
+			"z-50 min-w-[8rem] overflow-hidden rounded-overlay border bg-popover p-1 text-popover-foreground shadow-sm",
 			// Entry animations
 			"data-[state=open]:motion-safe:motion-translate-y-in-2",
 			"data-[state=open]:motion-safe:motion-opacity-in-0",
@@ -23,31 +23,31 @@ export const contextMenuStyles = tv({
 			"data-[side=right]:motion-safe:motion-translate-x-in--2",
 		],
 		item: [
-			"relative flex cursor-default select-none items-center rounded-xs px-2 py-1.5 text-sm",
+			"relative flex cursor-default select-none items-center rounded-overlay px-2 py-1.5 text-body",
 			"outline-none focus:bg-accent focus:text-accent-foreground",
 			"data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 		],
 		checkboxItem: [
-			"relative flex cursor-default select-none items-center rounded-xs py-1.5 pr-2 pl-8 text-sm",
+			"relative flex cursor-default select-none items-center rounded-overlay py-1.5 pr-2 pl-8 text-body",
 			"outline-none focus:bg-accent focus:text-accent-foreground",
 			"data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 		],
 		radioItem: [
-			"relative flex cursor-default select-none items-center rounded-xs py-1.5 pr-2 pl-8 text-sm",
+			"relative flex cursor-default select-none items-center rounded-overlay py-1.5 pr-2 pl-8 text-body",
 			"outline-none focus:bg-accent focus:text-accent-foreground",
 			"data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 		],
-		label: "px-2 py-1.5 font-semibold text-foreground text-sm",
+		label: "px-2 py-1.5 font-semibold text-foreground text-body",
 		separator: "-mx-1 my-1 h-px bg-border",
-		shortcut: "ml-auto text-muted-foreground text-xs tracking-widest",
+		shortcut: "ml-auto text-muted-foreground text-caption tracking-widest",
 		subTrigger: [
-			"flex cursor-default select-none items-center rounded-xs px-2 py-1.5 text-sm",
+			"flex cursor-default select-none items-center rounded-overlay px-2 py-1.5 text-body",
 			"outline-none focus:bg-accent focus:text-accent-foreground",
 			"data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
 		],
 		subTriggerIcon: "ml-auto size-4",
 		subContent: [
-			"z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-sm",
+			"z-50 min-w-[8rem] overflow-hidden rounded-overlay border bg-popover p-1 text-popover-foreground shadow-sm",
 			// Entry animations
 			"data-[state=open]:motion-safe:motion-opacity-in-0",
 			"data-[state=open]:motion-safe:motion-scale-in-95",

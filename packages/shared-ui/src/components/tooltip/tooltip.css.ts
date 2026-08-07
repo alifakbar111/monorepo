@@ -4,7 +4,7 @@ export const tooltipStyles = tv({
 	slots: {
 		base: [
 			// Base styles
-			"z-50 overflow-hidden rounded-sm bg-black px-3 py-1.5 text-white text-xs shadow-md",
+			"z-50 overflow-hidden rounded-overlay bg-black px-3 py-1.5 text-button-default-foreground text-caption shadow-md",
 
 			// Entry animations
 			"data-[state=open]:motion-safe:motion-opacity-in-0",

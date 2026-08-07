@@ -5,13 +5,13 @@ export const accordionStyles = tv({
 		item: "border border-b-0 px-4 first:rounded-t-md last:rounded-b-md last:border-b",
 		headerWrapper: "flex",
 		headerTrigger: [
-			"flex flex-1 cursor-pointer items-center justify-between py-4 font-medium text-sm transition-all hover:underline",
+			"flex flex-1 cursor-pointer items-center justify-between py-4 font-medium text-body transition-all hover:underline",
 			"[&[data-state=open]>svg]:rotate-180",
 		],
 		headerIcon:
 			"size-4 shrink-0 text-muted-foreground transition-transform duration-200",
 		contentWrapper: [
-			"overflow-hidden text-sm",
+			"overflow-hidden text-body",
 			"data-[state=closed]:animate-accordion-up",
 			"data-[state=open]:animate-accordion-down",
 		],

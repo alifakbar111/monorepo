@@ -3,11 +3,11 @@ import { tv, type VariantProps } from "tailwind-variants/lite";
 export const alertStyles = tv({
 	slots: {
 		base: [
-			"relative w-full rounded-lg border px-4 py-3 text-sm",
+			"relative w-full rounded border px-4 py-3 text-body",
 			"[&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:top-4 [&>svg]:left-4 [&>svg]:text-foreground [&>svg~*]:pl-7",
 		],
 		title: "mb-1 font-medium leading-none tracking-tight",
-		description: "text-sm [&_p]:leading-relaxed",
+		description: "text-body [&_p]:leading-relaxed",
 	},
 	variants: {
 		variant: {

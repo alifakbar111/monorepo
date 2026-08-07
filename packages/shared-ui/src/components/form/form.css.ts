@@ -4,7 +4,7 @@ export const formStyles = tv({
 	slots: {
 		item: "space-y-2",
 		label:
-			"font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+			"font-medium text-body leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
 		labelError: "text-destructive",
 		control: "",
 		description: "text-[0.8rem] text-muted-foreground",

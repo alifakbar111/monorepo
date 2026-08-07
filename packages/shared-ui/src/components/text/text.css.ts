@@ -4,10 +4,10 @@ export const textStyles = tv({
 	base: "transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
 	variants: {
 		size: {
-			xs: "text-xs",
-			sm: "text-sm",
-			md: "text-base",
-			lg: "text-lg",
+			xs: "text-caption",
+			sm: "text-body",
+			md: "text-body-lg",
+			lg: "text-title",
 			xl: "text-xl",
 			"2xl": "text-2xl",
 		},

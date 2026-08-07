@@ -8,8 +8,8 @@ export const headingStyles = tv({
 			h2: "font-bold text-3xl lg:text-4xl",
 			h3: "font-bold text-2xl lg:text-3xl",
 			h4: "font-semibold text-xl lg:text-2xl",
-			h5: "font-semibold text-lg lg:text-xl",
-			h6: "font-semibold text-base lg:text-lg",
+			h5: "font-semibold text-title lg:text-xl",
+			h6: "font-semibold text-body-lg lg:text-title",
 		},
 		weight: {
 			light: "font-light",
