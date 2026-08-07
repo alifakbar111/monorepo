@@ -66,10 +66,19 @@ done
 
 # Rename all files *.tsx to *.raw.tsx inside the target directory
 find "$TARGET_PATH" -type f -name "*.tsx" | while read -r file; do
+    # Skip the preset dashboard and the theme backup snapshots — authored, not scaffolded.
+    # `find` yields paths starting with $TARGET_PATH, so match the path suffix.
+    case "$file" in
+        */src/preset/* | */src/theme/.backup/*) continue ;;
+    esac
     mv "$file" "${file%.tsx}.raw.tsx"
 done
 
 # Rename all files *.mdx to *.raw.mdx inside the target directory
 find "$TARGET_PATH" -type f -name "*.mdx" | while read -r file; do
+    # Same skip as the *.tsx loop — never touch the dashboard or backups.
+    case "$file" in
+        */src/preset/* | */src/theme/.backup/*) continue ;;
+    esac
     mv "$file" "${file%.mdx}.raw.mdx"
 done
