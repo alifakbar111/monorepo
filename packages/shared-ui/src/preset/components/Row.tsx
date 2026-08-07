@@ -22,24 +22,27 @@ export function Row({
 		<div className="preset-row">
 			<span className="font-medium">{label}</span>
 			<input className="preset-input" value={value} onChange={(e) => onValue(e.target.value)} />
-			{onInherit ? (
-				<button
-					className="preset-toggle"
-					onClick={onInherit}
-					title="stop overriding; inherit from GENERAL"
-				>
-					↺ inherit
-				</button>
-			) : (
-				<button
-					className="preset-toggle"
-					data-active={mode === "as-is"}
-					onClick={onToggleMode}
-					title="convert snaps to the nearest Tailwind step; as-is keeps the literal value"
-				>
-					{mode === "convert" ? "Convert" : "Keep as-is"}
-				</button>
-			)}
+			<div className="flex gap-1">
+				{onToggleMode && (
+					<button
+						className="preset-toggle"
+						data-active={mode === "as-is"}
+						onClick={onToggleMode}
+						title="convert snaps to the nearest Tailwind step; as-is keeps the literal value"
+					>
+						{mode === "convert" ? "Convert" : "Keep as-is"}
+					</button>
+				)}
+				{onInherit && (
+					<button
+						className="preset-toggle"
+						onClick={onInherit}
+						title="stop overriding; inherit from GENERAL"
+					>
+						↺ inherit
+					</button>
+				)}
+			</div>
 			<span className="truncate text-xs text-muted-foreground" title={resolved.display}>
 				{resolved.display}
 			</span>

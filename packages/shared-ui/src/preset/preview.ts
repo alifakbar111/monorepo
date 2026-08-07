@@ -62,6 +62,7 @@ export function buildPreviewCss(preset: Preset, specs: ResolvedComponentSpec[], 
 		.join("");
 	vars.push(`\t--font-heading: ${preset.fonts.heading.family};`);
 	vars.push(`\t--font-body: ${preset.fonts.body.family};`);
+	vars.push(`\t--font-sans: ${preset.fonts.body.family};`);
 	vars.push(`\t--font-mono: ${preset.fonts.mono.family};`);
 	for (const [k, v] of Object.entries(preset.shadow)) vars.push(`\t--shadow-${k}: ${v};`);
 	for (const [k, v] of Object.entries(preset.animation.duration)) vars.push(`\t--duration-${k}: ${v};`);

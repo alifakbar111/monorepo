@@ -1,6 +1,6 @@
 import { useStore } from "@nanostores/react";
 import { workingPreset } from "../store";
-import { COMPONENT_GROUP } from "../groups";
+import { COMPONENT_GROUP, GROUPS } from "../groups";
 import { Button } from "../../components/button/button";
 import { Input } from "../../components/input/input";
 import { Badge } from "../../components/badge/badge";
@@ -101,7 +101,7 @@ export function Gallery({ selection }: { selection: string }) {
 				</section>
 				<section className="preset-canvas p-4">
 					<h3 className="mb-2 text-sm font-semibold">Dialog</h3>
-					<Dialog>
+					<Dialog defaultOpen>
 						<DialogContent size="sm">
 							<DialogHeader>
 								<DialogTitle>Small dialog</DialogTitle>
@@ -109,6 +109,18 @@ export function Gallery({ selection }: { selection: string }) {
 							</DialogHeader>
 						</DialogContent>
 					</Dialog>
+				</section>
+			</div>
+		);
+	}
+	// a sidebar click can select a single component name (not a group id) — render that
+	// component's preview directly instead of an empty group grid
+	if (!GROUPS.some((g) => g.id === selection) && preset.components[selection]) {
+		return (
+			<div className="grid flex-1 grid-cols-1 gap-4 overflow-y-auto p-4 lg:grid-cols-2">
+				<section key={selection} className="preset-canvas p-4">
+					<h3 className="mb-2 text-sm font-semibold">{selection}</h3>
+					<ComponentPreview name={selection} />
 				</section>
 			</div>
 		);

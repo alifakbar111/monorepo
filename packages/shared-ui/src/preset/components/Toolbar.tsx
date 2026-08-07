@@ -26,7 +26,7 @@ export function Toolbar({
 				>
 					{theme === "light" ? "◐ dark" : "◑ light"}
 				</button>
-				<button className="preset-toggle" onClick={onReset} title="reset to .backup">
+				<button className="preset-toggle" onClick={onReset} title="reset to last saved state">
 					↺ reset
 				</button>
 				<button

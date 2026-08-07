@@ -26,13 +26,16 @@ export function SpecPanel({ componentName }: { componentName: string }) {
 		dirty.set(true);
 	}
 
-	function ensureEntry(): boolean {
-		if (!current.components[componentName]) {
-			patch((p) => {
-				(p.components[componentName] as Record<string, unknown>) = { group };
-			});
-		}
-		return true;
+	// single-patch write into components.<name>: creates the entry on first touch, then
+	// mutates it in the SAME patch — avoids ensureEntry()'s double-write that patched a
+	// stale render-time clone and crashed on unadopted components.
+	function setOwn(fn: (entry: CompEntry) => void) {
+		patch((p) => {
+			// cast: the base entry type's radius includes null, so the ??= result needs
+			// narrowing to CompEntry for fn's parameter (compile-time only, same object)
+			const entry = (p.components[componentName] ??= { group } as CompEntry) as CompEntry;
+			fn(entry);
+		});
 	}
 
 	// three-tier resolution: component radius wins, else group radius, else GENERAL base
@@ -59,9 +62,9 @@ export function SpecPanel({ componentName }: { componentName: string }) {
 					value={compRadius.value}
 					mode={compRadius.mode}
 					kind="radius"
-					onValue={(v) => ensureEntry() && patch((p) => void ((p.components[componentName] as CompEntry).radius = { value: v, mode: compRadius.mode }))}
-					onToggleMode={() => ensureEntry() && patch((p) => void ((p.components[componentName] as CompEntry).radius = { value: compRadius.value, mode: compRadius.mode === "convert" ? "as-is" : "convert" }))}
-					onInherit={() => patch((p) => void delete (p.components[componentName] as CompEntry).radius)}
+					onValue={(v) => setOwn((entry) => { entry.radius = { value: v, mode: compRadius.mode }; })}
+					onToggleMode={() => setOwn((entry) => { entry.radius = { value: compRadius.value, mode: compRadius.mode === "convert" ? "as-is" : "convert" }; })}
+					onInherit={() => setOwn((entry) => { delete entry.radius; })}
 				/>
 			) : compRadius && "shift" in compRadius ? (
 				<Row
@@ -69,8 +72,8 @@ export function SpecPanel({ componentName }: { componentName: string }) {
 					value={compRadius.shift}
 					mode="as-is"
 					kind="radius"
-					onValue={(v) => ensureEntry() && patch((p) => void ((p.components[componentName] as CompEntry).radius = { shift: v }))}
-					onInherit={() => patch((p) => void delete (p.components[componentName] as CompEntry).radius)}
+					onValue={(v) => setOwn((entry) => { entry.radius = { shift: v }; })}
+					onInherit={() => setOwn((entry) => { delete entry.radius; })}
 				/>
 			) : (
 				<div className="preset-row">
@@ -80,10 +83,10 @@ export function SpecPanel({ componentName }: { componentName: string }) {
 							? `inherits group ${group} (${"value" in groupRadius! ? groupRadius.value : "base + " + groupRadius!.shift})`
 							: `inherits GENERAL base (${preset.radius.base.value})`}
 					</span>
-					<button className="preset-toggle" onClick={() => ensureEntry() && patch((p) => void ((p.components[componentName] as CompEntry).radius = { value: preset.radius.base.value, mode: "convert" }))}>
+					<button className="preset-toggle" onClick={() => setOwn((entry) => { entry.radius = { value: preset.radius.base.value, mode: "convert" }; })}>
 						✎ set own value (component override)
 					</button>
-					<button className="preset-toggle" onClick={() => ensureEntry() && patch((p) => void ((p.components[componentName] as CompEntry).radius = { shift: "2px" }))}>
+					<button className="preset-toggle" onClick={() => setOwn((entry) => { entry.radius = { shift: "2px" }; })}>
 						✎ shift from base
 					</button>
 				</div>
@@ -96,9 +99,9 @@ export function SpecPanel({ componentName }: { componentName: string }) {
 					value={size.width?.value ?? "600px"}
 					mode={size.width?.mode ?? "convert"}
 					kind="width"
-					onValue={(v) => ensureEntry() && patch((p) => void ((p.components[componentName] as CompEntry).sizes![sizeKey] = { width: { value: v, mode: size.width?.mode ?? "convert" } }))}
+					onValue={(v) => setOwn((entry) => { entry.sizes![sizeKey] = { width: { value: v, mode: size.width?.mode ?? "convert" } }; })}
 					onToggleMode={() =>
-						ensureEntry() && patch((p) => void ((p.components[componentName] as CompEntry).sizes![sizeKey] = { width: { value: size.width?.value ?? "600px", mode: size.width?.mode === "convert" ? "as-is" : "convert" } }))
+						setOwn((entry) => { entry.sizes![sizeKey] = { width: { value: size.width?.value ?? "600px", mode: size.width?.mode === "convert" ? "as-is" : "convert" } }; })
 					}
 				/>
 			))}
@@ -106,8 +109,8 @@ export function SpecPanel({ componentName }: { componentName: string }) {
 				<button
 					className="preset-toggle m-3"
 					onClick={() =>
-						ensureEntry() && patch((p) => {
-							(p.components[componentName] as CompEntry).sizes = { sm: { width: { value: "600px", mode: "convert" } } };
+						setOwn((entry) => {
+							entry.sizes = { sm: { width: { value: "600px", mode: "convert" } } };
 						})
 					}
 				>

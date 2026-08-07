@@ -52,9 +52,13 @@ export function App() {
 		try {
 			// The server snapshots BEFORE writing (preset.json + colors.css + global.css +
 			// all component css.ts) and rolls back on failure — the dashboard only reports.
+			const sent = preset; // the exact object snapshot being saved
 			const r = await savePreset(preset);
 			lastReport.set({ changed: r.changedComponents.length, untokenized: r.untokenized, bytes: r.colorsBytes + r.globalBytes });
-			dirty.set(false);
+			// only clear dirty if nothing changed since the save snapshot — edits made
+			// while the save was in flight must not be clobbered (identity compare works:
+			// every edit replaces the object via structuredClone)
+			if (workingPreset.get() === sent) dirty.set(false);
 		} catch (e) {
 			// server already restored the previous state; keep editing the in-memory preset
 			console.error("save failed (state restored server-side):", e);
