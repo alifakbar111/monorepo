@@ -1,11 +1,12 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { untokenizedClasses } from "./codemod";
+import { COMPONENTS_DIR } from "./pipeline";
 
 // preset:check — default is WARN (report only, exit 0). --strict makes it fail,
 // for use in CI where untokenized classes must block the merge.
 const strict = process.argv.includes("--strict");
-const componentsDir = resolve("src/components");
+const componentsDir = COMPONENTS_DIR;
 const offenders: string[] = [];
 for (const dir of readdirSync(componentsDir, { withFileTypes: true })) {
 	if (!dir.isDirectory()) continue;

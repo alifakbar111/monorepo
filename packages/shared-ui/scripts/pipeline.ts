@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, readdirSync } from "node:fs";
 import { dirname, join, resolve, basename } from "node:path";
+import { fileURLToPath } from "node:url";
 import { presetSchema, type Preset } from "./types";
 import { buildResolvedSpec, type ResolvedComponentSpec } from "./component-map";
 import { generateColorsCss, generateGlobalCss } from "./codegen";
@@ -13,10 +14,12 @@ export interface PipelineResult {
 	untokenized: string[];
 }
 
-export const PRESET_PATH = resolve("src/theme/preset.json");
-export const COLORS_PATH = resolve("src/styles/colors.css");
-export const GLOBAL_CSS_PATH = resolve("src/styles/global.css");
-export const BACKUP_DIR = resolve("src/theme/.backup");
+const PACKAGE_DIR = dirname(dirname(fileURLToPath(import.meta.url))); // …/packages/shared-ui (scripts/ one level down)
+export const PRESET_PATH = resolve(PACKAGE_DIR, "src/theme/preset.json");
+export const COLORS_PATH = resolve(PACKAGE_DIR, "src/styles/colors.css");
+export const GLOBAL_CSS_PATH = resolve(PACKAGE_DIR, "src/styles/global.css");
+export const BACKUP_DIR = resolve(PACKAGE_DIR, "src/theme/.backup");
+export const COMPONENTS_DIR = resolve(PACKAGE_DIR, "src/components");
 
 export function loadPreset(): Preset {
 	return presetSchema.parse(JSON.parse(readFileSync(PRESET_PATH, "utf8")));
@@ -42,10 +45,9 @@ export function snapshotBackup(): string[] {
 		}
 	}
 	// every component css.ts, mirrored under .backup/components/<dir>/<dir>.css.ts
-	const componentsDir = resolve("src/components");
-	for (const dir of readdirSync(componentsDir, { withFileTypes: true })) {
+	for (const dir of readdirSync(COMPONENTS_DIR, { withFileTypes: true })) {
 		if (!dir.isDirectory()) continue;
-		const src = resolve(componentsDir, dir.name, `${dir.name}.css.ts`);
+		const src = resolve(COMPONENTS_DIR, dir.name, `${dir.name}.css.ts`);
 		if (!existsSync(src)) continue; // e.g. carousel/chart/spinner/squircle have no css.ts
 		const rel = join("components", dir.name, `${dir.name}.css.ts`);
 		const dest = join(BACKUP_DIR, rel);
@@ -65,7 +67,7 @@ export function restoreBackup(): string[] {
 		writeFileSync(src, readFileSync(join(BACKUP_DIR, name)));
 		restored.push(name);
 	}
-	const componentsDir = resolve("src/components");
+	const componentsDir = COMPONENTS_DIR;
 	for (const dir of readdirSync(componentsDir, { withFileTypes: true })) {
 		if (!dir.isDirectory()) continue;
 		const rel = join("components", dir.name, `${dir.name}.css.ts`);
@@ -84,7 +86,7 @@ export function runPipeline(preset: Preset, { applyComponents }: { applyComponen
 	let changedComponents: string[] = [];
 	let untokenized: string[] = [];
 	if (applyComponents) {
-		const res = runCodemod({ componentsDir: resolve("src/components"), preset });
+		const res = runCodemod({ componentsDir: COMPONENTS_DIR, preset });
 		changedComponents = res.changedFiles;
 		untokenized = res.untokenizedFiles;
 	}
