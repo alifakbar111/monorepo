@@ -3,7 +3,7 @@ import { tv, type VariantProps } from "tailwind-variants/lite";
 export const breadcrumbStyles = tv({
 	slots: {
 		base: "",
-		list: "flex flex-wrap items-center gap-1.5 break-words text-muted-foreground text-body sm:gap-2.5",
+		list: "flex flex-wrap items-center gap-1.5 break-words text-muted-foreground text-sm sm:gap-2.5",
 		item: "inline-flex items-center gap-1.5",
 		link: "transition-colors hover:text-foreground",
 		page: "font-normal text-foreground",

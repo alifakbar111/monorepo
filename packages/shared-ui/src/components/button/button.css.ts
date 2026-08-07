@@ -3,15 +3,15 @@ import { tv, type VariantProps } from "tailwind-variants/lite";
 export const buttonStyles = tv({
 	slots: {
 		base: [
-			"inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-button font-medium text-body transition-colors",
+			"inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm transition-colors",
 			"focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
 			"[&[data-loading=true]_svg:not(:first-child)]:hidden [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
 		],
 	},
 	variants: {
 		variant: {
-			default: "bg-button-default text-button-default-foreground shadow-sm hover:bg-button-default/90",
-			primary: "bg-primary text-button-default-foreground shadow-sm hover:bg-primary/90",
+			default: "bg-gray-900 text-white shadow-sm hover:bg-gray-900/90",
+			primary: "bg-primary text-white shadow-sm hover:bg-primary/90",
 			secondary:
 				"bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
 			destructive:
@@ -23,8 +23,8 @@ export const buttonStyles = tv({
 		},
 		size: {
 			default: "h-9 px-4 py-2",
-			sm: "h-8 rounded-button px-3 text-caption",
-			lg: "h-10 rounded-button px-8",
+			sm: "h-8 rounded-md px-3 text-xs",
+			lg: "h-10 rounded-md px-8",
 			icon: "size-9",
 		},
 		isLoading: {

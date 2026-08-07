@@ -3,7 +3,7 @@ import { tv, type VariantProps } from "tailwind-variants/lite";
 export const popoverStyles = tv({
 	base: [
 		// Base styles
-		"z-50 w-72 rounded-overlay border bg-popover p-4 text-popover-foreground shadow-md outline-none",
+		"z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none",
 
 		// Entry animations
 		"data-[state=open]:motion-safe:motion-opacity-in-0",

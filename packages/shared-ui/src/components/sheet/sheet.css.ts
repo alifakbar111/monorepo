@@ -13,15 +13,15 @@ export const sheetStyles = tv({
 			"data-[state=closed]:motion-safe:motion-opacity-out-0 motion-duration-[0.35s]/opacity",
 		],
 		contentCloseWrapper: [
-			"absolute top-4 right-4 rounded-overlay opacity-70 ring-offset-background transition-opacity hover:opacity-100",
+			"absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100",
 			"focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none",
 			"data-[state=open]:bg-secondary",
 		],
 		contentCloseIcon: "size-4 cursor-pointer",
 		header: "flex flex-col space-y-2 text-center sm:text-left",
 		footer: "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-		title: "font-semibold text-foreground text-title",
-		description: "text-muted-foreground text-body",
+		title: "font-semibold text-foreground text-lg",
+		description: "text-muted-foreground text-sm",
 	},
 	variants: {
 		side: {

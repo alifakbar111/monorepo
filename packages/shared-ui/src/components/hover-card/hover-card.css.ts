@@ -3,7 +3,7 @@ import { tv, type VariantProps } from "tailwind-variants/lite";
 export const hoverCardStyles = tv({
 	slots: {
 		content: [
-			"z-50 w-64 rounded-overlay border bg-popover p-4 text-popover-foreground shadow-md outline-none",
+			"z-50 w-64 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none",
 			// Entry animations
 			"data-[state=open]:motion-safe:motion-opacity-in-0",
 			"data-[state=open]:motion-safe:motion-duration-150",

@@ -25,7 +25,9 @@ export function handleSave(workingPreset: unknown): ApiResponse {
 	const snapshot = snapshotBackup();
 	try {
 		writeFileSync(PRESET_PATH, JSON.stringify(parsed.data, null, "\t") + "\n");
-		const result = runPipeline(parsed.data, { applyComponents: true });
+		// Components are NOT re-tokenized here: css.ts stays pristine in the source package
+		// and is only tokenized when a project ADOPTS shared-ui (preset:codemod, cli-codemod.ts).
+		const result = runPipeline(parsed.data, { applyComponents: false });
 		writeTheme(result);
 		return {
 			ok: true,

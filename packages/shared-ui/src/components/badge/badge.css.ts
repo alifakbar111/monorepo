@@ -2,7 +2,7 @@ import { tv, type VariantProps } from "tailwind-variants/lite";
 
 export const badgeStyles = tv({
 	slots: {
-		base: "inline-flex items-center rounded-badge border font-medium text-caption transition-colors",
+		base: "inline-flex items-center rounded-md border font-medium text-xs transition-colors",
 	},
 	variants: {
 		variant: {
@@ -23,11 +23,11 @@ export const badgeStyles = tv({
 		},
 		size: {
 			sm: "px-2 py-0.5 text-[10px]",
-			default: "px-2.5 py-0.5 text-caption",
-			lg: "px-3 py-1 text-body",
+			default: "px-2.5 py-0.5 text-xs",
+			lg: "px-3 py-1 text-sm",
 		},
 		rounded: {
-			default: "rounded-badge",
+			default: "rounded-md",
 			full: "rounded-full",
 		},
 	},
