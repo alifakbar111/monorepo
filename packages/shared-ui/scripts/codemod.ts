@@ -25,6 +25,13 @@ export function buildRules(radiusToken: "inherit" | string): { match: RegExp; to
 	return [
 		// corner radius → semantic token (base or per-group opt-out)
 		{ match: /\brounded-(xs|sm|md|lg|xl|2xl|3xl|4xl)\b/g, to: () => radiusClass },
+		// bare `rounded` → semantic token (opt-out components); no-op for inherit.
+		// The negative lookahead protects rounded-full, rounded-[...], rounded-t-md.
+		{ match: /\brounded(?![a-z[-])/g, to: () => radiusClass },
+		// stale `rounded-<group>` from a previous save → de-tokenize back to bare
+		// `rounded` for inheriting components, or re-target to the current token for
+		// opt-outs. `rounded-full` is NOT in the allowlist, so pill corners are kept.
+		{ match: /\brounded-(button|badge|input|overlay|card|surface|typography|dialog)\b/g, to: () => radiusClass },
 		// body text sizes → role tokens
 		{ match: /\btext-sm\b/g, to: () => "text-body" },
 		{ match: /\btext-xs\b/g, to: () => "text-caption" },
@@ -64,49 +71,136 @@ function transformClassString(input: string, rules: ReturnType<typeof buildRules
 	return { out, report };
 }
 
-/** Insert a `size` variant into the `variants` object of the tv() config. */
+/**
+ * Insert a slot-scoped `size` variant into the tv() config. In tailwind-variants
+ * SLOTS mode, a string-valued variant is silently dropped (inert), so each size
+ * value must be an object targeting the `content` slot:
+ *   variants: { size: { sm: { content: "max-w-dialog-sm" }, ... } },
+ *   defaultVariants: { size: "sm" }
+ * Idempotency: skip insertion when a `size` variant already exists, and skip /
+ * add `defaultVariants.size` as needed.
+ */
 function addSizeVariant(source: ts.SourceFile, sizes: string[], widthPrefix: string): ts.SourceFile {
 	const tvCall = findTvCall(source);
 	if (!tvCall) return source;
 	const arg = tvCall.arguments[0];
 	if (!arg || !ts.isObjectLiteralExpression(arg)) return source;
-	const variantsProp = arg.properties.find(
-		(p): p is ts.PropertyAssignment =>
-			ts.isPropertyAssignment(p) && p.name.getText(source) === "variants",
-	);
+
+	const firstSize = sizes[0];
+	const props = [...arg.properties];
+	const findProp = (name: string): ts.PropertyAssignment | undefined =>
+		props.find(
+			(p): p is ts.PropertyAssignment =>
+				ts.isPropertyAssignment(p) && p.name.getText(source) === name,
+		);
+
+	const variantsProp = findProp("variants");
+	const variantsObj =
+		variantsProp && ts.isObjectLiteralExpression(variantsProp.initializer)
+			? variantsProp.initializer
+			: undefined;
 	// idempotency guard: if a `size` variant already exists, the file is already tokenized
-	if (
-		variantsProp &&
-		ts.isObjectLiteralExpression(variantsProp.initializer) &&
-		variantsProp.initializer.properties.some(
+	const sizeExists =
+		variantsObj !== undefined &&
+		variantsObj.properties.some(
 			(p) => ts.isPropertyAssignment(p) && p.name.getText(source) === "size",
-		)
-	) {
-		return source;
-	}
-	const sizeObject = ts.factory.createObjectLiteralExpression(
-		sizes.map((key) =>
-			ts.factory.createPropertyAssignment(
-				key,
-				ts.factory.createStringLiteral(`${widthPrefix}${key}`),
+		);
+
+	const defaultVariantsProp = findProp("defaultVariants");
+	const defaultVariantsObj =
+		defaultVariantsProp && ts.isObjectLiteralExpression(defaultVariantsProp.initializer)
+			? defaultVariantsProp.initializer
+			: undefined;
+	const defaultSizeExists =
+		defaultVariantsObj !== undefined &&
+		defaultVariantsObj.properties.some(
+			(p) => ts.isPropertyAssignment(p) && p.name.getText(source) === "size",
+		);
+
+	// nothing to do — the variant and its default are both already present
+	if (sizeExists && defaultSizeExists) return source;
+
+	// each size maps to a slot-scoped object targeting the `content` slot
+	const slotSizeObject = (): ts.ObjectLiteralExpression =>
+		ts.factory.createObjectLiteralExpression(
+			sizes.map((key) =>
+				ts.factory.createPropertyAssignment(
+					key,
+					ts.factory.createObjectLiteralExpression(
+						[
+							ts.factory.createPropertyAssignment(
+								"content",
+								ts.factory.createStringLiteral(`${widthPrefix}${key}`),
+							),
+						],
+						false,
+					),
+				),
 			),
-		),
-		true,
-	);
-	const variantProp = ts.factory.createPropertyAssignment("size", sizeObject);
-	let newVariants: ts.ObjectLiteralExpression;
-	if (variantsProp && ts.isObjectLiteralExpression(variantsProp.initializer)) {
-		newVariants = ts.factory.updateObjectLiteralExpression(variantsProp.initializer, [
-			...variantsProp.initializer.properties,
-			variantProp,
-		]);
-	} else {
-		newVariants = ts.factory.createObjectLiteralExpression([variantProp], true);
+			true,
+		);
+	const defaultSizeAssignment = (): ts.PropertyAssignment =>
+		ts.factory.createPropertyAssignment(
+			"size",
+			ts.factory.createStringLiteral(firstSize),
+		);
+
+	let changed = false;
+	const updatedProps: ts.ObjectLiteralElementLike[] = [];
+
+	for (const p of props) {
+		if (p === variantsProp && variantsObj && !sizeExists) {
+			updatedProps.push(
+				ts.factory.createPropertyAssignment(
+					"variants",
+					ts.factory.updateObjectLiteralExpression(variantsObj, [
+						...variantsObj.properties,
+						ts.factory.createPropertyAssignment("size", slotSizeObject()),
+					]),
+				),
+			);
+			changed = true;
+		} else if (p === defaultVariantsProp && defaultVariantsObj && !defaultSizeExists) {
+			updatedProps.push(
+				ts.factory.createPropertyAssignment(
+					"defaultVariants",
+					ts.factory.updateObjectLiteralExpression(defaultVariantsObj, [
+						...defaultVariantsObj.properties,
+						defaultSizeAssignment(),
+					]),
+				),
+			);
+			changed = true;
+		} else {
+			updatedProps.push(p);
+		}
 	}
-	const newArg = ts.factory.updateObjectLiteralExpression(arg, [
-		...arg.properties.filter((p) => !(ts.isPropertyAssignment(p) && p.name.getText(source) === "variants")),
-		ts.factory.createPropertyAssignment("variants", newVariants),
-	]);
+
+	if (!variantsProp) {
+		updatedProps.push(
+			ts.factory.createPropertyAssignment(
+				"variants",
+				ts.factory.createObjectLiteralExpression(
+					[ts.factory.createPropertyAssignment("size", slotSizeObject())],
+					true,
+				),
+			),
+		);
+		changed = true;
+	}
+	if (!defaultVariantsProp) {
+		updatedProps.push(
+			ts.factory.createPropertyAssignment(
+				"defaultVariants",
+				ts.factory.createObjectLiteralExpression([defaultSizeAssignment()], false),
+			),
+		);
+		changed = true;
+	}
+
+	if (!changed) return source;
+
+	const newArg = ts.factory.updateObjectLiteralExpression(arg, updatedProps);
 	const newCall = ts.factory.updateCallExpression(
 		tvCall,
 		tvCall.expression,
@@ -126,6 +220,19 @@ function addSizeVariant(source: ts.SourceFile, sizes: string[], widthPrefix: str
 	const updated = result.transformed[0] as ts.SourceFile;
 	result.dispose();
 	return updated;
+}
+
+/**
+ * The TS printer emits 4-space indentation and double-quoted strings, which does
+ * not match the repo's oxfmt style (tabs, single quotes). Re-indent leading
+ * 4-space groups to tabs and flip double quotes to single quotes. Safe here
+ * because the printer only re-prints this file's class strings, which contain no
+ * internal quotes.
+ */
+function postProcessPrinterOutput(code: string): string {
+	return code
+		.replace(/^(?: {4})+/gm, (indent) => "\t".repeat(indent.length / 4))
+		.replace(/"/g, "'");
 }
 
 function findTvCall(source: ts.SourceFile): ts.CallExpression | undefined {
@@ -169,7 +276,7 @@ export function transformCssTs(
 		source = ts.createSourceFile("x.css.ts", newText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
 		const withSize = addSizeVariant(source, sizes, widthPrefix);
 		const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
-		const finalCode = printer.printFile(withSize);
+		const finalCode = postProcessPrinterOutput(printer.printFile(withSize));
 		return { code: finalCode, report, changed: changed || withSize !== source };
 	}
 

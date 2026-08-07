@@ -24,9 +24,9 @@ const DialogOverlay = React.forwardRef<
 
 const DialogContent = React.forwardRef<
 	React.ComponentRef<typeof DialogPrimitive.Content>,
-	React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => {
-	const styles = dialogStyles();
+	React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { size?: "sm" | "lg" }
+>(({ className, children, size = "sm", ...props }, ref) => {
+	const styles = dialogStyles({ size });
 	return (
 		<DialogPortal>
 			<DialogOverlay />
