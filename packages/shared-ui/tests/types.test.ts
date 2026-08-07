@@ -14,8 +14,8 @@ describe("preset.json", () => {
 	it("has light and dark color sets with the same keys", () => {
 		const raw = readFileSync(resolve(__dirname, "../src/theme/preset.json"), "utf8");
 		const preset = presetSchema.parse(JSON.parse(raw));
-		expect(Object.keys(preset.colors.light).sort()).toEqual(
-			Object.keys(preset.colors.dark).sort(),
+		expect(Object.keys(preset.colors.light).toSorted()).toEqual(
+			Object.keys(preset.colors.dark).toSorted(),
 		);
 	});
 });

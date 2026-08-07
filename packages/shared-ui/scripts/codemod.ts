@@ -20,7 +20,7 @@ export interface TransformResult {
  * `rounded-<token>` where `<token>` is the group OR the component name when that
  * component overrides its group (see resolveComponentRadius in component-map.ts).
  */
-export function buildRules(radiusToken: "inherit" | string): Array<{ match: RegExp; to: (m: string) => string }> {
+export function buildRules(radiusToken: "inherit" | string): { match: RegExp; to: (m: string) => string }[] {
 	const radiusClass = radiusToken === "inherit" ? "rounded" : `rounded-${radiusToken}`;
 	return [
 		// corner radius → semantic token (base or per-group opt-out)
@@ -184,12 +184,12 @@ export interface CodemodOptions {
 export function runCodemod(opts: CodemodOptions): {
 	changedFiles: string[];
 	untokenizedFiles: string[];
-	report: Array<{ file: string; from: string; to: string }>;
+	report: { file: string; from: string; to: string }[];
 } {
 	const { componentsDir, preset } = opts;
 	const changedFiles: string[] = [];
 	const untokenizedFiles: string[] = [];
-	const report: Array<{ file: string; from: string; to: string }> = [];
+	const report: { file: string; from: string; to: string }[] = [];
 
 	const specs = new Map(
 		Object.entries(preset.components).map(([name, e]) => [name, e.group] as const),

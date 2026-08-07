@@ -57,7 +57,7 @@ export default defineConfig({
 				preserveModulesRoot: "src",
 				banner: "'use client';",
 			},
-			external: [...Object.keys(pkg.peerDependencies || {})],
+			external: Object.keys(pkg.peerDependencies || {}),
 		},
 	},
 });
