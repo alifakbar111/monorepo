@@ -64,3 +64,29 @@ export const COMPONENT_GROUP: Record<string, string> = {
 	heading: "typography",
 	text: "typography",
 };
+
+/**
+ * What the sidebar has selected. Group ids and component names share one flat name
+ * space — `button`, `card`, `badge` and `input` are BOTH — so a bare string cannot
+ * say which was clicked. Carrying the kind keeps a component click on the component.
+ */
+export type Selection =
+	| { kind: "tokens" }
+	| { kind: "group"; id: string }
+	| { kind: "component"; name: string };
+
+export const TOKENS_SELECTION: Selection = { kind: "tokens" };
+
+/** Components belonging to a group, sorted. Unmapped components fall back to `surface`
+ *  so they stay reachable instead of vanishing from every grid. */
+export function groupMembers(groupId: string, componentNames: string[]): string[] {
+	return componentNames.filter((n) => (COMPONENT_GROUP[n] ?? "surface") === groupId).toSorted();
+}
+
+/** The component the spec sheet should focus: the explicitly selected one, or the
+ *  first member of the selected group (deterministic, sorted). */
+export function focusComponent(selection: Selection, componentNames: string[]): string {
+	if (selection.kind === "component") return selection.name;
+	if (selection.kind === "group") return groupMembers(selection.id, componentNames)[0] ?? "";
+	return "";
+}

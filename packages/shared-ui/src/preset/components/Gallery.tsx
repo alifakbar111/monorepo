@@ -1,6 +1,6 @@
 import { useStore } from "@nanostores/react";
 import { workingPreset } from "../store";
-import { COMPONENT_GROUP, GROUPS } from "../groups";
+import { type Selection, groupMembers } from "../groups";
 import { Button } from "../../components/button/button";
 import { Input } from "../../components/input/input";
 import { Badge } from "../../components/badge/badge";
@@ -8,7 +8,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../..
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/tabs/tabs";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../../components/table/table";
 import { Progress } from "../../components/progress/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../components/dialog/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../components/dialog/dialog";
 
 function DemoButtonRow() {
 	return (
@@ -70,10 +70,10 @@ function DemoDataRow() {
 	);
 }
 
-export function Gallery({ selection }: { selection: string }) {
+export function Gallery({ selection }: { selection: Selection }) {
 	const preset = useStore(workingPreset);
 	if (!preset) return <div className="p-4 text-sm text-muted-foreground">loading preset…</div>;
-	if (selection === "" || selection === "tokens") {
+	if (selection.kind === "tokens") {
 		return (
 			<div className="grid flex-1 grid-cols-1 gap-4 overflow-y-auto p-4 lg:grid-cols-2">
 				<section className="preset-canvas p-4">
@@ -101,7 +101,12 @@ export function Gallery({ selection }: { selection: string }) {
 				</section>
 				<section className="preset-canvas p-4">
 					<h3 className="mb-2 text-sm font-semibold">Dialog</h3>
-					<Dialog defaultOpen>
+					{/* NOT defaultOpen: a modal dialog sets pointer-events:none on <body>,
+					    which left every control in the dashboard dead on first paint. */}
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button variant="outline" size="sm">Open dialog preview</Button>
+						</DialogTrigger>
 						<DialogContent size="sm">
 							<DialogHeader>
 								<DialogTitle>Small dialog</DialogTitle>
@@ -113,22 +118,16 @@ export function Gallery({ selection }: { selection: string }) {
 			</div>
 		);
 	}
-	// a sidebar click can select a single component name (not a group id) — render that
-	// component's preview directly instead of an empty group grid
-	if (!GROUPS.some((g) => g.id === selection) && preset.components[selection]) {
-		return (
-			<div className="grid flex-1 grid-cols-1 gap-4 overflow-y-auto p-4 lg:grid-cols-2">
-				<section key={selection} className="preset-canvas p-4">
-					<h3 className="mb-2 text-sm font-semibold">{selection}</h3>
-					<ComponentPreview name={selection} />
-				</section>
-			</div>
-		);
-	}
-	const members = Object.keys(preset.components).filter((n) => COMPONENT_GROUP[n] === selection);
+	// A component click renders that component alone. selection.kind is what makes this
+	// reliable: "button", "card", "badge" and "input" are also group ids, so the old
+	// bare-string check fell through to the group grid for exactly those four.
+	const members =
+		selection.kind === "component"
+			? [selection.name]
+			: groupMembers(selection.id, Object.keys(preset.components));
 	return (
 		<div className="grid flex-1 grid-cols-1 gap-4 overflow-y-auto p-4 lg:grid-cols-2">
-			{members.toSorted().map((name) => (
+			{members.map((name) => (
 				<section key={name} className="preset-canvas p-4">
 					<h3 className="mb-2 text-sm font-semibold">{name}</h3>
 					<ComponentPreview name={name} />

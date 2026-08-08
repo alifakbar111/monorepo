@@ -1,13 +1,13 @@
 import { useStore } from "@nanostores/react";
 import { workingPreset } from "../store";
-import { GROUPS, COMPONENT_GROUP } from "../groups";
+import { GROUPS, COMPONENT_GROUP, type Selection } from "../groups";
 
 export function Sidebar({
 	selection,
 	onSelect,
 }: {
-	selection: string;
-	onSelect: (id: string) => void;
+	selection: Selection;
+	onSelect: (selection: Selection) => void;
 }) {
 	const preset = useStore(workingPreset);
 	const byGroup: Record<string, string[]> = {};
@@ -36,8 +36,8 @@ export function Sidebar({
 				<div key={section.id} className="mt-3">
 					<button
 						className="preset-item w-full text-left font-medium"
-						data-active={selection === section.id}
-						onClick={() => onSelect(section.id)}
+						data-active={selection.kind === "group" && selection.id === section.id}
+						onClick={() => onSelect({ kind: "group", id: section.id })}
 					>
 						<span>{groupOverridden(section.id) ? "● " : ""}{section.label}</span>
 					</button>
@@ -45,8 +45,8 @@ export function Sidebar({
 						<button
 							key={name}
 							className="preset-item w-full pl-5 text-left"
-							data-active={selection === name}
-							onClick={() => onSelect(name)}
+							data-active={selection.kind === "component" && selection.name === name}
+							onClick={() => onSelect({ kind: "component", name })}
 						>
 							{componentOverridden(name) ? "● " : ""}
 							{name}

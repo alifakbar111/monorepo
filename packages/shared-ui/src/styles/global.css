@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* The preset Vite app sets root: "src/preset", so Tailwind v4's automatic
+   source detection only scans from there. This @source makes the component
+   library (src/components/**) visible so their utility classes are generated. */
+@source "../components/**/*.{ts,tsx}";
+
 @theme {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
@@ -72,13 +77,14 @@
 	--radius-lg: var(--radius);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-sm: calc(var(--radius) - 4px);
-	--radius-button: calc(var(--radius) + -2px);
+	--radius-button: 1rem;
 	--radius-badge: calc(var(--radius) + -2px);
 	--radius-input: calc(var(--radius) + -2px);
 	--radius-dialog: 0.6rem;
 	--radius-overlay: calc(var(--radius) + -2px);
 
 	/* Component Widths */
+	--container-button-sm: 100px;
 	--container-dialog-sm: 36rem;
 	--container-dialog-lg: 72rem;
 

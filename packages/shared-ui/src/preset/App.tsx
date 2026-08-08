@@ -10,26 +10,16 @@ import { Sidebar } from "./components/Sidebar";
 import { Gallery } from "./components/Gallery";
 import { TokenPanel } from "./components/TokenPanel";
 import { SpecPanel } from "./components/SpecPanel";
-import { GROUPS, COMPONENT_GROUP } from "./groups";
-import type { Preset } from "../../scripts/types";
-
-/** The bottom spec sheet shows the focused component — an explicitly selected one,
- *  or the first member of the selected group (deterministic, sorted). */
-function focusComponent(selection: string, preset: Preset | null): string {
-	if (selection && !GROUPS.some((g) => g.id === selection) && preset?.components[selection]) {
-		return selection;
-	}
-	const members = Object.keys(preset?.components ?? {}).filter((n) => COMPONENT_GROUP[n] === selection);
-	return members.toSorted()[0] ?? "";
-}
+import { type Selection, TOKENS_SELECTION, focusComponent } from "./groups";
 
 export function App() {
 	const preset = useStore(workingPreset);
 	const preview = useStore(previewStyle);
 	const isSaving = useStore(saving);
 	const report = useStore(lastReport);
-	const [selection, setSelection] = useState(""); // "" = token/general gallery, else component name
+	const [selection, setSelection] = useState<Selection>(TOKENS_SELECTION);
 	const [theme, setTheme] = useState<"light" | "dark">("light");
+	const focused = focusComponent(selection, Object.keys(preset?.components ?? {}));
 
 	useEffect(() => {
 		document.documentElement.dataset.theme = theme;
@@ -82,11 +72,7 @@ export function App() {
 				{/* CENTER: canvas + bottom spec sheet */}
 				<main className="flex min-w-0 flex-1 flex-col">
 					<Gallery selection={selection} />
-					{focusComponent(selection, preset) ? (
-						<SpecPanel componentName={focusComponent(selection, preset)} />
-					) : (
-						<TokenPanel />
-					)}
+					{focused ? <SpecPanel componentName={focused} /> : <TokenPanel />}
 					{report && (
 						<div className="border-t border-border px-4 py-1 text-xs text-muted-foreground">
 							Saved: {report.changed} components rewritten, {report.bytes} bytes of theme CSS.

@@ -1,4 +1,7 @@
-@import "tailwindcss";
+/* NOTE: Tailwind is loaded via global.css (imported by main.tsx before this file).
+   Do not re-import "tailwindcss" here — a duplicate build would override the
+   custom @theme (fonts, colors, radii) with Tailwind's defaults, and the
+   component classes in src/components/** would be lost again. */
 
 :root {
 	color-scheme: light;

@@ -134,6 +134,11 @@ export function generateGlobalCss(preset: Preset, specs: ResolvedComponentSpec[]
 	const fontFacesBlock = fontFaces ? `\n${fontFaces}\n` : "";
 	return `${importsBlock}@import "tailwindcss";
 
+/* The preset Vite app sets root: "src/preset", so Tailwind v4's automatic
+   source detection only scans from there. This @source makes the component
+   library (src/components/**) visible so their utility classes are generated. */
+@source "../components/**/*.{ts,tsx}";
+
 @theme {
 ${colorMapping}
 ${preservedColors}
