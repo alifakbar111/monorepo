@@ -69,7 +69,7 @@ The design (colors, typography, fonts, corner-radius base + per-group opt-outs +
 
 Component `*.css.ts` files stay **pristine in this package** — they are only re-tokenized to semantic preset classes when a project **adopts** shared-ui (`preset:codemod`), so the source components keep their plain Tailwind classes until then.
 
-> **DEV-ONLY — never mount in production.** The dashboard (`src/preset/**`) is excluded from the published package and must never be enabled in a production build: its save API rewrites theme files (`preset.json`, generated CSS) from a browser request. Scaffolding scripts (`builder/shared-ui.sh`) skip `src/preset/**` so a re-scaffold never deletes it.
+> **DEV-ONLY — never mount in production.** The dashboard (`src/preset/**`) is excluded from the published package and must never be enabled in a production build: its save API rewrites theme files (`preset.json`, generated CSS) from a browser request (the middleware is loopback-bound, caps request bodies at 5 MB, and zod allowlists reject unknown preset names/values). Scaffolding scripts (`builder/shared-ui.sh`) skip `src/preset/**` so a re-scaffold never deletes it.
 
 ### Run the dashboard
 
@@ -125,3 +125,12 @@ pnpm --filter @repo/shared-ui typecheck    # tsc --noEmit (covers scripts/, test
 3. Click **Save** — snapshots the current theme files FIRST, then writes `preset.json` and regenerates the theme CSS; on failure everything is rolled back. Component `*.css.ts` files are not rewritten (tokenize them at adoption with `preset:codemod`).
 4. `git diff src/styles/global.css` → the radius token (`--radius`, `--radius-dialog`) reflects your change.
 5. `git add` the changed files and commit.
+
+### Known limitations & troubleshooting
+
+- **Save never rewrites `*.css.ts`.** The dashboard only regenerates `preset.json` + the theme CSS; component source keeps its plain Tailwind classes. Tokenization to semantic preset classes (`rounded-button`, `text-body`, …) happens once, at adoption, in the **consuming project** (`preset:codemod`) — a saved preset has no effect on component source until that runs.
+- **GENERAL rail gaps.** Spacing, easings and shadows have no dedicated editors in the left rail — edit them directly in `src/theme/preset.json`, then `preset:build` (or re-save) to regenerate. Type-role **weight** edits are stored but not emitted by codegen (only size/line-height are).
+- **Breakpoints are build-time.** Edits save to the preset but aren't live-previewable; verify in the consuming app after `preset:build`.
+- **`preset:check --strict` is for adopting projects.** In this package it always fails — components are intentionally untokenized. Wire the `--strict` gate into CI only where `preset:codemod` has been run.
+- **Dialog close button radius** tokenizes to `rounded-dialog` at adoption (not kept as `rounded-xs`).
+- **Blank dashboard page?** Known cause: React bundled twice (inlined into radix-ui) → "Invalid hook call". `vite.preset.config.ts` fixes this with `resolve.dedupe` + `optimizeDeps.include` for `react`/`react-dom`; if it still happens, clear the stale `packages/shared-ui/node_modules/.vite` cache.
