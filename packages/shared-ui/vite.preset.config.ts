@@ -66,6 +66,15 @@ function presetServer(): Plugin {
 export default defineConfig({
 	root: "src/preset",
 	plugins: [react(), tailwindcss(), presetServer()],
+	// With `root` pointing inside the package, the dep optimizer can end up bundling a
+	// second copy of React INTO pre-bundled CJS deps (radix-ui) → "Invalid hook call".
+	// Dedupe + pre-bundle react/react-dom so every dep shares the same optimized chunk.
+	resolve: {
+		dedupe: ["react", "react-dom"],
+	},
+	optimizeDeps: {
+		include: ["react", "react-dom"],
+	},
 	server: { port: 6100, host: false, open: true },
 	build: { outDir: "../../dist-preset", emptyOutDir: true },
 });
