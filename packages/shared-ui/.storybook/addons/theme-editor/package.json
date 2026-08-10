@@ -2,10 +2,9 @@
   "name": "@storybook/theme-editor",
   "version": "1.0.0",
   "description": "Theme Editor addon for Storybook",
-  "main": "index.ts",
-  "type": "module",
+  "main": "preset.js",
   "exports": {
-    ".": "./index.ts",
+    ".": "./preset.js",
     "./manager": "./manager.ts",
     "./preview": "./preview.ts"
   },
