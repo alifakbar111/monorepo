@@ -1,0 +1,16 @@
+{
+  "name": "@storybook/theme-editor",
+  "version": "1.0.0",
+  "description": "Theme Editor addon for Storybook",
+  "main": "index.ts",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./manager": "./manager.ts",
+    "./preview": "./preview.ts"
+  },
+  "peerDependencies": {
+    "storybook": "^10.0.0",
+    "react": "^19.0.0"
+  }
+}

@@ -1,5 +1,5 @@
 import type { Decorator } from '@storybook/react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { DEFAULT_TOKENS, EVENT_KEY } from './constants';
 import { applyTokens } from './tokenUtils';
 
@@ -20,7 +20,7 @@ export const withThemeEditor: Decorator = (Story, context) => {
     return () => window.removeEventListener('message', handleThemeUpdate);
   }, []);
 
-  return <Story />;
+  return React.createElement(Story, context);
 };
 
 // Export decorators for preview.ts
