@@ -1,10 +1,56 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 
 interface ColorPickerProps {
   label: string;
   tokenKey: string;
   value: string;
   onChange: (value: string) => void;
+}
+
+// Cache for computed colors to avoid repeated DOM operations
+const colorCache = new Map<string, string>();
+
+/**
+ * Convert any CSS color value to hex using DOM computation
+ */
+function computeColorToHex(colorValue: string): string {
+  // Return cached value if available
+  if (colorCache.has(colorValue)) {
+    return colorCache.get(colorValue)!;
+  }
+
+  // Already hex
+  if (colorValue.startsWith('#')) {
+    colorCache.set(colorValue, colorValue);
+    return colorValue;
+  }
+
+  // For other formats, use DOM to compute
+  try {
+    const tempElement = document.createElement('div');
+    tempElement.style.color = colorValue;
+    tempElement.style.position = 'absolute';
+    tempElement.style.left = '-9999px';
+    document.body.appendChild(tempElement);
+
+    const computedColor = getComputedStyle(tempElement).color;
+    document.body.removeChild(tempElement);
+
+    // Parse rgb(r, g, b) format
+    const rgbMatch = computedColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (rgbMatch) {
+      const [, r, g, b] = rgbMatch.map(Number);
+      const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+      colorCache.set(colorValue, hex);
+      return hex;
+    }
+
+    colorCache.set(colorValue, colorValue);
+    return colorValue;
+  } catch {
+    colorCache.set(colorValue, '#888888');
+    return '#888888';
+  }
 }
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({
@@ -17,6 +63,9 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   const [inputValue, setInputValue] = useState(value);
   const popoverRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Compute the display color using useMemo for performance
+  const displayColor = useMemo(() => computeColorToHex(value), [value]);
 
   // Update input when value changes externally
   useEffect(() => {
@@ -42,14 +91,12 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
-    // Update on every change for live preview
     if (newValue) {
       onChange(newValue);
     }
   };
 
   const handleInputBlur = () => {
-    // Reset to current value if input is invalid
     setInputValue(value);
   };
 
@@ -57,13 +104,13 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
     setIsOpen(!isOpen);
   };
 
-  // Get display color - handle oklch by showing a fallback
-  const getDisplayColor = () => {
-    if (value.startsWith('#')) return value;
-    if (value.startsWith('rgb')) return value;
-    if (value.startsWith('hsl')) return value;
-    // For oklch, show a neutral gray as preview
-    return '#888888';
+  // Get color format for display
+  const getColorFormat = () => {
+    if (value.startsWith('oklch')) return 'oklch';
+    if (value.startsWith('#')) return 'hex';
+    if (value.startsWith('rgb')) return 'rgb';
+    if (value.startsWith('hsl')) return 'hsl';
+    return 'other';
   };
 
   // Quick preset colors
@@ -102,12 +149,12 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           height: '28px',
           border: '2px solid #ccc',
           borderRadius: '4px',
-          background: getDisplayColor(),
+          background: displayColor,
           cursor: 'pointer',
           padding: 0,
           flexShrink: 0,
         }}
-        title={`Click to edit: ${value}`}
+        title={`${label}: ${value}`}
       />
 
       {/* Text Input */}
@@ -148,21 +195,35 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
             minWidth: '240px',
           }}
         >
-          {/* Color format label */}
-          <div style={{ fontSize: '11px', color: '#666', marginBottom: '8px' }}>
-            Current format: <strong>{value.startsWith('oklch') ? 'oklch' : value.startsWith('#') ? 'hex' : value.startsWith('rgb') ? 'rgb' : 'other'}</strong>
+          {/* Color preview and format */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: displayColor,
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+            }} />
+            <div>
+              <div style={{ fontSize: '11px', color: '#666' }}>
+                Format: <strong>{getColorFormat()}</strong>
+              </div>
+              <div style={{ fontSize: '10px', color: '#999', fontFamily: 'monospace' }}>
+                {value.length > 30 ? value.substring(0, 30) + '...' : value}
+              </div>
+            </div>
           </div>
 
           {/* Native color input (works with hex) */}
           <div style={{ marginBottom: '8px' }}>
             <label style={{ fontSize: '11px', color: '#666', display: 'block', marginBottom: '4px' }}>
-              Color Picker:
+              Visual Picker:
             </label>
             <input
               type="color"
-              value={value.startsWith('#') ? value : '#888888'}
+              value={displayColor}
               onChange={(e) => onChange(e.target.value)}
-              style={{ width: '100%', height: '60px', cursor: 'pointer', borderRadius: '4px' }}
+              style={{ width: '100%', height: '50px', cursor: 'pointer', borderRadius: '4px' }}
             />
           </div>
 
