@@ -3,6 +3,7 @@ import { useAddonState, useChannel } from 'storybook/manager-api';
 import { DEFAULT_TOKENS, DARK_MODE_OVERRIDES, ADDON_ID, EVENT_KEY, TOKEN_GROUPS } from '../constants';
 import { applyTokens, exportTokens, downloadFile, copyToClipboard } from '../tokenUtils';
 import type { ExportFormat } from '../types';
+import '../styles/addon.css';
 
 // Lazy load sub-components
 const ColorGroup = React.lazy(() => import('./ColorGroup'));
@@ -83,9 +84,9 @@ export const ThemeEditor: React.FC = () => {
   }, [tokens]);
 
   return (
-    <div style={{ padding: '16px', fontFamily: 'system-ui, sans-serif' }}>
+    <div className="theme-editor-panel" style={{ height: '100%', overflowY: 'auto' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      <div className="theme-editor-header">
         <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>🎨 Theme Editor</h3>
         <ThemeToggle theme={theme} onToggle={handleThemeToggle} />
       </div>
