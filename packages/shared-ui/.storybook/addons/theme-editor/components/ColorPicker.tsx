@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { toOklch, oklchToHex, needsConversion, getColorFormat } from '../utils/color-converter';
 
 interface ColorPickerProps {
   label: string;
   tokenKey: string;
   value: string;
   onChange: (value: string) => void;
+  autoConvert?: boolean; // Auto-convert to oklch (default: true)
 }
 
 // Cache for computed colors to avoid repeated DOM operations
@@ -58,6 +60,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   tokenKey,
   value,
   onChange,
+  autoConvert = true,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
@@ -66,6 +69,14 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
 
   // Compute the display color using useMemo for performance
   const displayColor = useMemo(() => computeColorToHex(value), [value]);
+
+  // Get the oklch value for storage
+  const oklchValue = useMemo(() => {
+    if (autoConvert && needsConversion(value)) {
+      return toOklch(value);
+    }
+    return value;
+  }, [value, autoConvert]);
 
   // Update input when value changes externally
   useEffect(() => {
@@ -92,25 +103,27 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
     const newValue = e.target.value;
     setInputValue(newValue);
     if (newValue) {
-      onChange(newValue);
+      // Convert to oklch if autoConvert is enabled
+      if (autoConvert && needsConversion(newValue)) {
+        const oklch = toOklch(newValue);
+        onChange(oklch);
+      } else {
+        onChange(newValue);
+      }
     }
   };
 
   const handleInputBlur = () => {
-    setInputValue(value);
+    // Convert to oklch on blur if autoConvert is enabled
+    if (autoConvert && inputValue && needsConversion(inputValue)) {
+      const oklch = toOklch(inputValue);
+      setInputValue(oklch);
+      onChange(oklch);
+    }
   };
 
   const handleSwatchClick = () => {
     setIsOpen(!isOpen);
-  };
-
-  // Get color format for display
-  const getColorFormat = () => {
-    if (value.startsWith('oklch')) return 'oklch';
-    if (value.startsWith('#')) return 'hex';
-    if (value.startsWith('rgb')) return 'rgb';
-    if (value.startsWith('hsl')) return 'hsl';
-    return 'other';
   };
 
   // Quick preset colors
@@ -154,10 +167,10 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           padding: 0,
           flexShrink: 0,
         }}
-        title={`${label}: ${value}`}
+        title={`${label}: ${oklchValue}`}
       />
 
-      {/* Text Input */}
+      {/* Text Input - Shows oklch value */}
       <input
         type="text"
         value={inputValue}
@@ -192,10 +205,10 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
             borderRadius: '8px',
             boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
             zIndex: 1000,
-            minWidth: '240px',
+            minWidth: '280px',
           }}
         >
-          {/* Color preview and format */}
+          {/* Color preview and format info */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <div style={{
               width: '40px',
@@ -206,13 +219,27 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
             }} />
             <div>
               <div style={{ fontSize: '11px', color: '#666' }}>
-                Format: <strong>{getColorFormat()}</strong>
+                Format: <strong>oklch</strong>
               </div>
-              <div style={{ fontSize: '10px', color: '#999', fontFamily: 'monospace' }}>
-                {value.length > 30 ? value.substring(0, 30) + '...' : value}
+              <div style={{ fontSize: '10px', color: '#999', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                {oklchValue}
               </div>
             </div>
           </div>
+
+          {/* Auto-convert indicator */}
+          {autoConvert && (
+            <div style={{ 
+              marginBottom: '8px', 
+              padding: '4px 8px', 
+              background: '#e8f5e9', 
+              borderRadius: '4px',
+              fontSize: '10px',
+              color: '#2e7d32',
+            }}>
+              ✓ Auto-converting to oklch format
+            </div>
+          )}
 
           {/* Native color input (works with hex) */}
           <div style={{ marginBottom: '8px' }}>
@@ -222,7 +249,12 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
             <input
               type="color"
               value={displayColor}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(e) => {
+                const hex = e.target.value;
+                const oklch = toOklch(hex);
+                onChange(oklch);
+                setInputValue(oklch);
+              }}
               style={{ width: '100%', height: '50px', cursor: 'pointer', borderRadius: '4px' }}
             />
           </div>
@@ -237,14 +269,15 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
                 <button
                   key={color.value}
                   onClick={() => {
-                    onChange(color.value);
-                    setInputValue(color.value);
+                    const oklch = toOklch(color.value);
+                    onChange(oklch);
+                    setInputValue(oklch);
                   }}
-                  title={color.name}
+                  title={`${color.name} → ${toOklch(color.value)}`}
                   style={{
                     width: '22px',
                     height: '22px',
-                    border: inputValue === color.value ? '2px solid #000' : '1px solid #ccc',
+                    border: '1px solid #ccc',
                     borderRadius: '4px',
                     background: color.value,
                     cursor: 'pointer',
@@ -258,12 +291,13 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           {/* Direct input */}
           <div>
             <label style={{ fontSize: '11px', color: '#666', display: 'block', marginBottom: '4px' }}>
-              CSS Value:
+              CSS Value (auto-converts to oklch):
             </label>
             <input
               type="text"
               value={inputValue}
               onChange={handleInputChange}
+              onBlur={handleInputBlur}
               style={{
                 width: '100%',
                 padding: '6px 8px',
@@ -275,7 +309,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
                 color: '#000',
                 background: '#fff',
               }}
-              placeholder="e.g., #ff0000, oklch(0.5 0.2 260), rgb(255,0,0)"
+              placeholder="e.g., #ff0000, rgb(255,0,0), oklch(0.5 0.2 260)"
             />
           </div>
 
