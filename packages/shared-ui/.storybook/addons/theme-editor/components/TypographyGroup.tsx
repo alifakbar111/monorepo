@@ -30,6 +30,7 @@ export const TypographyGroup: React.FC<TypographyGroupProps> = ({
           fontSize: '12px',
           fontWeight: 600,
           textAlign: 'left',
+          color: '#000000',
         }}
       >
         <span style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>

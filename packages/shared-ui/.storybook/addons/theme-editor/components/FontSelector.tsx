@@ -92,6 +92,7 @@ export const FontSelector: React.FC<FontSelectorProps> = ({
               background: '#e0e0e0',
               borderRadius: '4px',
               fontSize: '11px',
+              color: '#000000',
             }}
           >
             {font}
