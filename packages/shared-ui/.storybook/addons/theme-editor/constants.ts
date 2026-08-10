@@ -162,9 +162,9 @@ export const TOKEN_DEFINITIONS: TokenDefinition[] = [
   { key: '--border', label: 'Border', type: 'color', group: 'border', defaultValue: DEFAULT_TOKENS['--border'] },
   { key: '--input', label: 'Input', type: 'color', group: 'border', defaultValue: DEFAULT_TOKENS['--input'] },
   { key: '--ring', label: 'Ring', type: 'color', group: 'border', defaultValue: DEFAULT_TOKENS['--ring'] },
+  { key: '--radius', label: 'Border Radius', type: 'size', group: 'border', defaultValue: DEFAULT_TOKENS['--radius'], min: 0, max: 2, step: 0.1, unit: 'rem' },
 
-  // Spacing & Radius
-  { key: '--radius', label: 'Border Radius', type: 'size', group: 'spacing', defaultValue: DEFAULT_TOKENS['--radius'], min: 0, max: 2, step: 0.1, unit: 'rem' },
+  // Spacing
   { key: '--spacing', label: 'Spacing', type: 'size', group: 'spacing', defaultValue: DEFAULT_TOKENS['--spacing'], min: 0.1, max: 1, step: 0.05, unit: 'rem' },
 
   // Typography
@@ -179,8 +179,8 @@ export const TOKEN_GROUPS: TokenGroup[] = [
   { id: 'surface', label: 'Surface Colors', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'surface') },
   { id: 'neutral', label: 'Neutral Colors', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'neutral') },
   { id: 'status', label: 'Status Colors', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'status') },
-  { id: 'border', label: 'Border & Input', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'border') },
-  { id: 'spacing', label: 'Spacing & Radius', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'spacing') },
+  { id: 'border', label: 'Border & Radius', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'border') },
+  { id: 'spacing', label: 'Spacing', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'spacing') },
   { id: 'typography', label: 'Typography', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'typography') },
 ];
 

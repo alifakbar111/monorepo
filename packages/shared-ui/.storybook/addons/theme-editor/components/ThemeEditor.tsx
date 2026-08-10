@@ -7,7 +7,6 @@ import '../styles/addon.css';
 
 // Lazy load sub-components
 const ColorGroup = React.lazy(() => import('./ColorGroup'));
-const SizeGroup = React.lazy(() => import('./SizeGroup'));
 const TypographyGroup = React.lazy(() => import('./TypographyGroup'));
 const PresetManager = React.lazy(() => import('./PresetManager'));
 const ThemeToggle = React.lazy(() => import('./ThemeToggle'));
@@ -101,12 +100,6 @@ export const ThemeEditor: React.FC = () => {
               onUpdate={handleTokenUpdate}
             />
           ))}
-
-          {/* Size tokens */}
-          <SizeGroup
-            tokens={tokens}
-            onUpdate={handleTokenUpdate}
-          />
 
           {/* Typography tokens */}
           <TypographyGroup

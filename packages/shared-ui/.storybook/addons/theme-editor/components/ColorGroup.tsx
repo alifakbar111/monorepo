@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 
-import type { TokenGroup } from '../types'
+import type { TokenGroup, TokenDefinition } from '../types'
 import ColorPicker from './ColorPicker'
+import SliderInput from './SliderInput'
 
 interface ColorGroupProps {
   group: TokenGroup
@@ -9,8 +10,50 @@ interface ColorGroupProps {
   onUpdate: (key: string, value: string) => void
 }
 
+// Helper to strip unit from value for display
+const stripUnit = (value: string, unit: string): string => {
+  if (value.endsWith(unit)) {
+    return value.slice(0, -unit.length);
+  }
+  const match = value.match(/^([\d.]+)/);
+  return match ? match[1] : value;
+};
+
 export const ColorGroup: React.FC<ColorGroupProps> = ({ group, tokens, onUpdate }) => {
   const [isExpanded, setIsExpanded] = useState(true)
+
+  // Render token based on its type
+  const renderToken = (token: TokenDefinition) => {
+    const value = tokens[token.key] || token.defaultValue;
+
+    // Size tokens use slider
+    if (token.type === 'size' && token.min !== undefined && token.max !== undefined && token.unit) {
+      return (
+        <SliderInput
+          key={token.key}
+          label={token.label}
+          tokenKey={token.key}
+          value={stripUnit(value, token.unit)}
+          min={token.min}
+          max={token.max}
+          step={token.step || 0.1}
+          unit={token.unit}
+          onChange={(newValue) => onUpdate(token.key, newValue)}
+        />
+      );
+    }
+
+    // Color tokens use color picker
+    return (
+      <ColorPicker
+        key={token.key}
+        label={token.label}
+        tokenKey={token.key}
+        value={value}
+        onChange={(newValue) => onUpdate(token.key, newValue)}
+      />
+    );
+  };
 
   return (
     <div style={{ marginBottom: '12px' }}>
@@ -50,15 +93,7 @@ export const ColorGroup: React.FC<ColorGroupProps> = ({ group, tokens, onUpdate 
       {/* Token List */}
       {isExpanded && (
         <div style={{ padding: '8px 0' }}>
-          {group.tokens.map((token) => (
-            <ColorPicker
-              key={token.key}
-              label={token.label}
-              tokenKey={token.key}
-              value={tokens[token.key] || token.defaultValue}
-              onChange={(value) => onUpdate(token.key, value)}
-            />
-          ))}
+          {group.tokens.map(renderToken)}
         </div>
       )}
     </div>
