@@ -1,5 +1,6 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import { mergeConfig } from "vite";
+import { themeSyncPlugin } from "./vite-plugin-theme-sync";
 
 const config: StorybookConfig = {
 	stories: [
@@ -27,7 +28,7 @@ const config: StorybookConfig = {
 
 	async viteFinal(config) {
 		return mergeConfig(config, {
-			plugins: [],
+			plugins: [themeSyncPlugin()],
 			build: {
 				chunkSizeWarningLimit: 1024 * 4,
 			},
