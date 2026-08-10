@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shared UI — Design Preset (Prototype v2: left/right sidebar layout)</title>
+<style>
+	:root {
+		--background: oklch(1 0 0);
+		--foreground: oklch(0.25 0.008 255.21);
+		--primary: oklch(0.55 0.191 263.8);
+		--primary-foreground: oklch(0.98 0.003 252.11);
+		--secondary: oklch(0.95 0.005 252.11);
+		--secondary-foreground: oklch(0.25 0.008 252.11);
+		--muted: oklch(0.95 0.005 252.11);
+		--muted-foreground: oklch(0.55 0.015 252.11);
+		--accent: oklch(0.95 0.005 252.11);
+		--accent-foreground: oklch(0.25 0.008 252.11);
+		--border: oklch(0.89 0.008 252.11);
+		--input: oklch(0.89 0.008 252.11);
+		--radius: 0.5rem;
+		--radius-button: var(--radius);
+		--radius-input: var(--radius);
+		--radius-overlay: calc(var(--radius) + 0.25rem);
+		--radius-card: calc(var(--radius) + 0.25rem);
+		--radius-badge: 9999px;
+		--radius-surface: var(--radius);
+		--container-dialog-sm: 36rem;
+		--container-dialog-lg: 72rem;
+		--font-heading: "Inter", ui-sans-serif, system-ui;
+		--font-sans: "Inter", ui-sans-serif, system-ui;
+		--font-mono: "JetBrains Mono", ui-monospace;
+		--text-body: 0.875rem;
+		--text-body--line-height: 1.5;
+		--text-title: 1.125rem;
+		--text-title--line-height: 1.4;
+		--text-caption: 0.75rem;
+		--text-caption--line-height: 1.5;
+		--duration-base: 200ms;
+	}
+	:root[data-theme="dark"] {
+		--background: oklch(0.15 0.011 252.11);
+		--foreground: oklch(0.98 0.003 252.11);
+		--primary: oklch(0.679 0.211 263.8);
+		--primary-foreground: oklch(0.25 0.008 252.11);
+		--secondary: oklch(0.28 0.008 252.11);
+		--secondary-foreground: oklch(0.98 0.003 252.11);
+		--muted: oklch(0.28 0.008 252.11);
+		--muted-foreground: oklch(0.65 0.015 252.11);
+		--accent: oklch(0.28 0.008 252.11);
+		--accent-foreground: oklch(0.98 0.003 252.11);
+		--border: oklch(0.28 0.008 252.11);
+		--input: oklch(0.28 0.008 252.11);
+	}
+
+	* { box-sizing: border-box; margin: 0; padding: 0; }
+	html, body { height: 100%; }
+	body {
+		font-family: var(--font-sans);
+		background: var(--background); color: var(--foreground);
+		display: flex; flex-direction: column; height: 100vh;
+	}
+
+	/* toolbar */
+	.toolbar {
+		display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 16px;
+		border-bottom: 1px solid var(--border); font-size: 14px;
+	}
+	.toolbar .title { font-weight: 600; }
+	.toolbar .dirty { font-size: 12px; color: var(--muted-foreground); }
+	.toolbar .spacer { flex: 1; }
+	.btn {
+		border: 1px solid var(--input); background: var(--background); color: var(--foreground);
+		border-radius: 6px; padding: 6px 10px; font-size: 13px; cursor: pointer;
+	}
+	.btn:hover { background: var(--accent); }
+	.btn.primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+	.btn.primary:disabled { opacity: 0.5; cursor: default; }
+
+	.body { display: flex; flex: 1; min-height: 0; }
+
+	/* ===== LEFT SIDEBAR — GENERAL (applies to all components) ===== */
+	.sidebar-left {
+		width: 250px; flex-shrink: 0; overflow-y: auto;
+		border-right: 1px solid var(--border); background: var(--muted); padding: 10px;
+	}
+	.general-head {
+		font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+		color: var(--primary); margin-bottom: 10px;
+	}
+	.gen-group { margin-bottom: 14px; }
+	.gen-label {
+		font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+		color: var(--muted-foreground); margin-bottom: 4px;
+	}
+	.gen-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 13px; }
+	.gen-row label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--foreground); }
+	.gen-hint { font-size: 11px; color: var(--muted-foreground); flex-shrink: 0; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.gen-note { font-size: 11px; color: var(--muted-foreground); margin-top: 2px; padding-left: 2px; line-height: 1.4; }
+	.gen-select { width: 100%; border: 1px solid var(--input); border-radius: 6px; background: var(--background); color: var(--foreground); padding: 3px 6px; font-size: 12px; margin-bottom: 4px; }
+	.gen-fieldset { border: 1px solid var(--border); border-radius: 6px; padding: 5px 6px 2px; margin-bottom: 6px; }
+	.gen-fieldset legend { font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-foreground); padding: 0 4px; }
+	.gen-input {
+		width: 90px; border: 1px solid var(--input); border-radius: 6px; background: var(--background);
+		padding: 3px 6px; font-size: 12px; color: var(--foreground);
+	}
+	.gen-input.wide { width: 100%; }
+	.swatch { width: 26px; height: 22px; border-radius: 6px; border: 1px solid var(--border); overflow: hidden; padding: 0; background: transparent; flex-shrink: 0; }
+	.swatch input { width: 100%; height: 100%; border: none; cursor: pointer; padding: 0; }
+	.section-hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+
+	/* ===== RIGHT SIDEBAR — COMPONENTS ===== */
+	.sidebar-right {
+		width: 190px; flex-shrink: 0; overflow-y: auto;
+		border-left: 1px solid var(--border); background: var(--muted); padding: 8px;
+	}
+	.sidebar-right .section { margin-top: 10px; }
+	.sidebar-right .section-label {
+		padding: 0 8px 4px; font-size: 11px; font-weight: 600; text-transform: uppercase;
+		letter-spacing: 0.04em; color: var(--muted-foreground);
+	}
+	.item {
+		display: block; width: 100%; text-align: left; cursor: pointer; color: var(--foreground);
+		padding: 5px 8px; border-radius: 6px; font-size: 13px; background: transparent; border: none;
+	}
+	.item:hover { background: var(--accent); }
+	.item[data-active="true"] { background: var(--primary); color: var(--primary-foreground); }
+	.item .tag { float: right; font-size: 10px; opacity: 0.6; }
+	.item[data-overridden="true"] .tag { opacity: 1; color: var(--primary); }
+
+	.main { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+
+	/* ===== CANVAS ===== */
+	.canvas {
+		flex: 1; overflow-y: auto; padding: 16px;
+		display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+		gap: 16px; align-content: start;
+	}
+	.preview-card { border: 1px solid var(--border); border-radius: 12px; background: var(--muted); padding: 16px; }
+	.preview-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+
+	/* demo components */
+	.demo-btn {
+		display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+		padding: 0 16px; height: 40px; border-radius: var(--radius-button);
+		font-size: var(--text-body); font-weight: 500; cursor: pointer; border: 1px solid transparent;
+	}
+	.demo-btn.default { background: var(--foreground); color: var(--background); }
+	.demo-btn.primary { background: var(--primary); color: var(--primary-foreground); }
+	.demo-btn.secondary { background: var(--secondary); color: var(--secondary-foreground); }
+	.demo-btn.outline { border-color: var(--input); background: var(--background); }
+	.demo-input {
+		width: 100%; height: 40px; border-radius: var(--radius-input); border: 1px solid var(--input);
+		background: var(--background); padding: 0 12px; font-size: var(--text-body); color: var(--foreground);
+	}
+	.demo-badge {
+		display: inline-flex; align-items: center; padding: 2px 10px; border-radius: var(--radius-badge);
+		font-size: var(--text-caption); background: var(--secondary); color: var(--secondary-foreground);
+	}
+	.demo-card {
+		border: 1px solid var(--border); border-radius: var(--radius-card);
+		background: var(--background); padding: 24px; max-width: 280px;
+	}
+	.demo-card-title { font-family: var(--font-heading); font-size: var(--text-title); font-weight: 600; line-height: var(--text-title--line-height); }
+	.demo-card-desc { font-size: var(--text-body); color: var(--muted-foreground); margin-top: 4px; }
+	.demo-dialog {
+		border: 1px solid var(--border); border-radius: var(--radius-overlay);
+		background: var(--background); padding: 24px; margin-top: 8px;
+	}
+	.demo-dialog.sm { max-width: var(--container-dialog-sm); }
+	.demo-dialog.lg { max-width: var(--container-dialog-lg); }
+	.demo-table { width: 100%; border-collapse: collapse; font-size: var(--text-body); border-radius: var(--radius-surface); overflow: hidden; }
+	.demo-table th, .demo-table td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+	.demo-table th { font-size: var(--text-caption); color: var(--muted-foreground); }
+	.hint { font-size: 12px; color: var(--muted-foreground); margin-top: 10px; }
+	.pill { display: inline-block; border-radius: 9999px; padding: 0 8px; font-size: 11px; border: 1px solid var(--border); margin-right: 4px; }
+
+	/* ===== BOTTOM PANEL — selected component spec sheet ===== */
+	.panel {
+		border-top: 1px solid var(--border); background: var(--background);
+		max-height: 240px; overflow-y: auto; padding: 10px 12px;
+	}
+	.panel h4 {
+		font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+		color: var(--muted-foreground); margin: 8px 0 6px;
+	}
+	.panel-empty { font-size: 13px; color: var(--muted-foreground); padding: 6px 2px; }
+	.row {
+		display: grid; grid-template-columns: 130px 110px 120px 1fr 24px;
+		gap: 8px; align-items: center; padding: 4px 0;
+		border-bottom: 1px solid color-mix(in oklab, var(--border), transparent 60%); font-size: 13px;
+	}
+	.row .attr { font-weight: 500; }
+	.row input[type="text"] {
+		border: 1px solid var(--input); border-radius: 6px; background: var(--background);
+		padding: 4px 8px; font-size: 13px; color: var(--foreground); width: 100%;
+	}
+	.toggle {
+		border: 1px solid var(--input); background: var(--background); color: var(--foreground);
+		border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; white-space: nowrap;
+	}
+	.toggle[data-active="true"] { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+	.toggle:disabled { opacity: 0.5; cursor: default; }
+	.resolved { font-size: 12px; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+	.banner { font-size: 12px; color: var(--muted-foreground); border-top: 1px solid var(--border); padding: 6px 16px; }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<header class="toolbar">
+	<span class="title">Shared UI — Design Preset</span>
+	<span class="dirty" id="dirty-label">saved</span>
+	<div class="spacer"></div>
+	<button class="btn" id="theme-toggle">◐ dark</button>
+	<button class="btn" id="reset-btn">↺ reset</button>
+	<button class="btn primary" id="save-btn" disabled>Save</button>
+</header>
+
+<div class="body">
+	<!-- ============ LEFT SIDEBAR — GENERAL (applies to ALL components) ============ -->
+	<aside class="sidebar-left">
+		<div class="general-head">GENERAL — applies to all</div>
+
+		<div class="gen-group">
+			<div class="gen-label">1 · Fonts</div>
+			<select class="gen-select" data-font-quick>
+				<option value="">⚡ quick pick… (fills body)</option>
+				<option>Inter</option>
+				<option>Sora</option>
+				<option>JetBrains Mono</option>
+			</select>
+			<fieldset class="gen-fieldset" data-fontset="heading">
+				<legend>heading · display h1 h2 h3 title</legend>
+				<div class="gen-row"><label>family</label><input class="gen-input wide" data-font-family="heading" value="" /></div>
+				<div class="gen-row"><label>url</label><input class="gen-input wide" data-font-url="heading" placeholder="https://fonts.google… (hosted)" value="" /></div>
+				<div class="gen-row"><label>woff2</label><input class="gen-input wide" data-font-files="heading" placeholder="fonts/sora-latin.woff2 (self-hosted)" value="" /></div>
+			</fieldset>
+			<fieldset class="gen-fieldset" data-fontset="body">
+				<legend>body · paragraph caption</legend>
+				<div class="gen-row"><label>family</label><input class="gen-input wide" data-font-family="body" value="" /></div>
+				<div class="gen-row"><label>url</label><input class="gen-input wide" data-font-url="body" placeholder="https://fonts.google… (hosted)" value="" /></div>
+				<div class="gen-row"><label>woff2</label><input class="gen-input wide" data-font-files="body" placeholder="fonts/inter-latin.woff2 (self-hosted)" value="" /></div>
+			</fieldset>
+			<fieldset class="gen-fieldset" data-fontset="mono">
+				<legend>mono · code numerics</legend>
+				<div class="gen-row"><label>family</label><input class="gen-input wide" data-font-family="mono" value="" /></div>
+				<div class="gen-row"><label>url</label><input class="gen-input wide" data-font-url="mono" placeholder="https://fonts.google… (hosted)" value="" /></div>
+				<div class="gen-row"><label>woff2</label><input class="gen-input wide" data-font-files="mono" placeholder="fonts/jbm-latin.woff2 (self-hosted)" value="" /></div>
+			</fieldset>
+			<div class="gen-note">← paste a hosted font URL or drop a woff2 into src/styles/fonts/ — no manual install</div>
+		</div>
+
+		<div class="gen-group">
+			<div class="gen-label">2 · Corner radius</div>
+			<div class="gen-row"><label>base</label><input class="gen-input" data-radius-base value="8px" /><span style="font-size:11px;color:var(--muted-foreground)">--radius</span></div>
+			<div class="gen-row"><label>overlay / card</label><input class="gen-input" data-radius-shift value="+4px" /><span style="font-size:11px;color:var(--muted-foreground)">+ shift</span></div>
+		</div>
+
+		<div class="gen-group">
+			<div class="gen-label">3 · Font sizes</div>
+			<div class="gen-row"><label>title</label><input class="gen-input" data-role-size="title" /></div>
+			<div class="gen-row"><label>body</label><input class="gen-input" data-role-size="body" /></div>
+			<div class="gen-row"><label>caption</label><input class="gen-input" data-role-size="caption" /></div>
+		</div>
+
+		<div class="gen-group">
+			<div class="gen-label">4 · Spacing · 5 · Breakpoints · 6 · Animations</div>
+			<div class="gen-row"><label>spacing unit</label><input class="gen-input" data-spacing-base value="0.25rem" /></div>
+			<div class="gen-row"><label>breakpoint md</label><input class="gen-input" data-breakpoint value="48rem" /></div>
+			<div class="gen-row"><label>duration base</label><input class="gen-input" data-anim value="200ms" /></div>
+		</div>
+
+		<hr class="section-hr" />
+		<div class="gen-group">
+			<div class="gen-label">7 · Colors — <span id="theme-name">light</span></div>
+			<div id="color-list"></div>
+		</div>
+	</aside>
+
+	<div class="main">
+		<!-- CANVAS -->
+		<div class="canvas" id="canvas">
+			<section class="preview-card"><h3>Buttons &amp; Badges</h3>
+				<button class="demo-btn default">Default</button>
+				<button class="demo-btn primary">Primary</button>
+				<button class="demo-btn secondary">Secondary</button>
+				<button class="demo-btn outline">Outline</button>
+				<button class="demo-btn ghost">Ghost</button>
+				<span class="demo-badge">Badge</span>
+				<p class="hint">radius: <code class="pill" id="hint-button">rounded-button</code></p>
+			</section>
+			<section class="preview-card"><h3>Forms</h3>
+				<input class="demo-input" placeholder="Type something…" /><br /><br />
+				<input class="demo-input" placeholder="Disabled" disabled />
+				<p class="hint">radius: <code class="pill" id="hint-input">rounded-input</code></p>
+			</section>
+			<section class="preview-card"><h3>Card</h3>
+				<div class="demo-card">
+					<div class="demo-card-title">Card title</div>
+					<div class="demo-card-desc">Card description</div>
+					<p style="font-size: var(--text-body); margin-top: 10px;">Card content</p>
+				</div>
+				<p class="hint">radius: <code class="pill" id="hint-card">rounded-card</code></p>
+			</section>
+			<section class="preview-card"><h3>Dialog — sizes</h3>
+				<div class="demo-dialog sm"><b style="font-family: var(--font-heading); font-size: var(--text-title);">Small</b><div style="font-size: var(--text-body); color: var(--muted-foreground); margin-top: 4px;">600px → max-w-dialog-sm</div></div>
+				<div class="demo-dialog lg"><b style="font-family: var(--font-heading); font-size: var(--text-title);">Large</b><div style="font-size: var(--text-body); color: var(--muted-foreground); margin-top: 4px;">1200px → max-w-dialog-lg</div></div>
+				<p class="hint">radius: <code class="pill" id="hint-overlay">rounded-overlay</code></p>
+			</section>
+			<section class="preview-card"><h3>Table</h3>
+				<table class="demo-table">
+					<tr><th>Name</th><th>Status</th></tr>
+					<tr><td>al-ip</td><td><span class="demo-badge">Active</span></td></tr>
+					<tr><td>client-b</td><td><span class="demo-badge">Pending</span></td></tr>
+				</table>
+			</section>
+		</div>
+
+		<!-- BOTTOM PANEL — selected component spec sheet (overrides) -->
+		<div class="panel" id="panel">
+			<div class="panel-empty">Select a component on the right → its overrides (radius, sizes, padding…) show here. Unset rows inherit the General values.</div>
+		</div>
+	</div>
+
+	<!-- ============ RIGHT SIDEBAR — COMPONENT LIST ============ -->
+	<aside class="sidebar-right" id="right-sidebar"></aside>
+</div>
+
+<div class="banner">Prototype v2 — left: General (all components) · right: component list · bottom: overrides. Real app: Save runs the codemod + codegen pipeline.</div>
+
+<script>
+// ================= MOCK PRESET =================
+const mockPreset = {
+	colors: {
+		light: {
+			background: "#ffffff", foreground: "#1a202c", primary: "#4f46e5",
+			"primary-foreground": "#ffffff", secondary: "#f4f4f5", border: "#e4e4e7",
+			muted: "#f4f4f5", "muted-foreground": "#71717a",
+		},
+		dark: {
+			background: "#0f1117", foreground: "#f4f4f5", primary: "#818cf8",
+			"primary-foreground": "#111", secondary: "#26272b", border: "#2d2f36",
+			muted: "#26272b", "muted-foreground": "#9ca3af",
+		},
+	},
+	fonts: {
+		heading: { family: '"Sora", "Inter", ui-sans-serif, system-ui', source: "https://fonts.googleapis.com/css2?family=Sora:wght@400..800", files: "" },
+		body: { family: '"Inter", ui-sans-serif, system-ui', source: "https://fonts.googleapis.com/css2?family=Inter:wght@400..600", files: "" },
+		mono: { family: '"JetBrains Mono", ui-monospace', source: "https://fonts.googleapis.com/css2?family=JetBrains+Mono", files: "" }
+	},
+	radius: { base: "8px", shift: "+4px" },
+	typeRoles: { title: { size: "1.125rem", lineHeight: "1.4" }, body: { size: "0.875rem", lineHeight: "1.5" }, caption: { size: "0.75rem", lineHeight: "1.5" } },
+	spacing: { base: "0.25rem" },
+	breakpoints: { sm: "40rem", md: "48rem", lg: "64rem" },
+	animation: { fast: "150ms", base: "200ms", slow: "300ms" },
+	// group overrides — null radius = inherit general
+	groups: {
+		button: { radius: null, height: { value: "40px", mode: "convert" } },
+		input: { radius: null, height: { value: "40px", mode: "convert" } },
+		overlay: { radius: { value: "12px", mode: "convert" }, sizes: { sm: "600px", lg: "1200px" } },
+		card: { radius: { value: "12px", mode: "convert" } },
+		badge: { radius: { value: "9999px", mode: "as-is" } },
+		surface: { radius: null },
+	},
+};
+
+const GROUPS = [
+	{ id: "button", label: "Buttons", members: ["button"] },
+	{ id: "input", label: "Inputs & Forms", members: ["input", "textarea", "select", "checkbox", "switch"] },
+	{ id: "overlay", label: "Overlays", members: ["dialog", "drawer", "sheet", "popover", "tooltip"] },
+	{ id: "card", label: "Cards", members: ["card"] },
+	{ id: "badge", label: "Badges & Avatars", members: ["badge", "avatar"] },
+	{ id: "surface", label: "Surfaces & Data", members: ["table", "tabs", "accordion", "alert", "progress"] },
+];
+
+// ================= CONVERSION ENGINE (mini) =================
+const SCALES = {
+	radius: [["xs",0.125],["sm",0.25],["md",0.375],["lg",0.5],["xl",0.75],["2xl",1],["3xl",1.5],["4xl",2],["full",9999]],
+	container: [["3xs",16],["2xs",18],["xs",20],["sm",24],["md",28],["lg",32],["xl",36],["2xl",42],["3xl",48],["4xl",56],["5xl",64],["6xl",72],["7xl",80]],
+};
+const pxToRem = (v) => (String(v).endsWith("rem") ? parseFloat(v) : String(v).endsWith("px") ? parseFloat(v) / 16 : parseFloat(v));
+const disp = (rem) => rem === 9999 ? "9999px" : (rem * 16 % 1 === 0 ? rem * 16 + "px" : rem + "rem");
+function snap(scale, value, prefix) {
+	const t = pxToRem(value);
+	let best = scale[0], bestD = Math.abs(scale[0][1] - t);
+	for (const [k, rem] of scale) { const d = Math.abs(rem - t); if (d < bestD) { best = [k, rem]; bestD = d; } }
+	return { className: prefix + best[0], rem: best[1], delta: bestD };
+}
+function convertValue(value, kind, mode) {
+	if (mode === "as-is") return { className: null, value, display: value + " (as-is)" };
+	if (kind === "radius") { const r = snap(SCALES.radius, value, "rounded-"); return { className: r.className, value: disp(r.rem), display: `${value} → ${r.className} (${disp(r.rem)}${r.delta ? ", Δ" + disp(r.delta) : ""})` }; }
+	if (kind === "width") { const r = snap(SCALES.container, value, "max-w-"); return { className: r.className, value: disp(r.rem), display: `${value} → ${r.className} (${disp(r.rem)}${r.delta ? ", Δ" + disp(r.delta) : ""})` }; }
+}
+
+// ================= STATE =================
+let working = structuredClone(mockPreset);
+let theme = "light";
+let selected = null; // component name or null
+let dirty = false;
+const $ = (s) => document.querySelector(s);
+
+// ================= EFFECTIVE VALUES (general + override resolution) =================
+function effectiveRadius(group) {
+	const g = working.groups[group];
+	if (!g.radius) return { value: working.radius.base, mode: "convert", inherits: true };
+	return { value: g.radius.value, mode: g.radius.mode, inherits: false };
+}
+// overlay/card default to base + shift when not overridden
+function resolvedGroupRadius(group) {
+	const g = working.groups[group];
+	const shift = group === "overlay" || group === "card" ? working.radius.shift : "0px";
+	if (g.radius) return { value: g.radius.value, mode: g.radius.mode, inherits: false };
+	const base = working.radius.base;
+	const combined = base.replace("px", "") === base ? base : `calc(${base} ${shift})`;
+	return { value: shift === "0px" ? base : combined, mode: "convert", inherits: true };
+}
+
+// ================= REACTIVE PREVIEW =================
+function applyPreview() {
+	const c = working.colors[theme];
+	const root = document.documentElement;
+	for (const [k, v] of Object.entries(c)) root.style.setProperty("--" + k, v);
+	root.style.setProperty("--radius", pxToRem(working.radius.base) + "rem");
+
+	const r = (group) => convertValue(resolvedGroupRadius(group).value, "radius", resolvedGroupRadius(group).mode);
+	root.style.setProperty("--radius-button", r("button").value);
+	root.style.setProperty("--radius-input", r("input").value);
+	root.style.setProperty("--radius-overlay", r("overlay").value);
+	root.style.setProperty("--radius-card", r("card").value);
+	root.style.setProperty("--radius-badge", r("badge").value);
+	root.style.setProperty("--radius-surface", r("surface").value);
+
+	const sm = convertValue(working.groups.overlay.sizes.sm, "width", "convert");
+	const lg = convertValue(working.groups.overlay.sizes.lg, "width", "convert");
+	root.style.setProperty("--container-dialog-sm", sm.value);
+	root.style.setProperty("--container-dialog-lg", lg.value);
+
+	root.style.setProperty("--font-heading", working.fonts.heading.family);
+	root.style.setProperty("--font-sans", working.fonts.body.family);
+	root.style.setProperty("--font-mono", working.fonts.mono.family);
+	for (const [role, tr] of Object.entries(working.typeRoles)) {
+		root.style.setProperty("--text-" + role, tr.size);
+		root.style.setProperty("--text-" + role + "--line-height", tr.lineHeight);
+	}
+	root.style.setProperty("--duration-base", working.animation.base);
+
+	$("#hint-button").textContent = "rounded-button (" + r("button").value + (resolvedGroupRadius("button").inherits ? " · inherits base" : " · override") + ")";
+	$("#hint-input").textContent = "rounded-input (" + r("input").value + (resolvedGroupRadius("input").inherits ? " · inherits base" : " · override") + ")";
+	$("#hint-card").textContent = "rounded-card (" + r("card").value + (resolvedGroupRadius("card").inherits ? " · inherits base" : " · override") + ")";
+	$("#hint-overlay").textContent = "rounded-overlay (" + r("overlay").value + (resolvedGroupRadius("overlay").inherits ? " · inherits base" : " · override") + ")";
+}
+
+function markDirty() {
+	dirty = true;
+	$("#dirty-label").textContent = "● unsaved changes";
+	$("#save-btn").disabled = false;
+}
+
+// ================= LEFT SIDEBAR (general) — bind inputs =================
+function bindGeneral() {
+	for (const k of ["heading", "body", "mono"]) {
+		$(`[data-font-family="${k}"]`).value = working.fonts[k].family;
+		$(`[data-font-url="${k}"]`).value = working.fonts[k].source ?? "";
+		$(`[data-font-files="${k}"]`).value = working.fonts[k].files ?? "";
+	}
+	$('[data-radius-base]').value = working.radius.base;
+	$('[data-radius-shift]').value = working.radius.shift;
+	$('[data-role-size="title"]').value = working.typeRoles.title.size;
+	$('[data-role-size="body"]').value = working.typeRoles.body.size;
+	$('[data-role-size="caption"]').value = working.typeRoles.caption.size;
+	$('[data-spacing-base]').value = working.spacing.base;
+	$('[data-breakpoint]').value = working.breakpoints.md;
+	$('[data-anim]').value = working.animation.base;
+	$("#theme-name").textContent = theme;
+
+	const list = $("#color-list");
+	list.innerHTML = Object.entries(working.colors[theme]).map(([k, v]) => `
+		<div class="gen-row">
+			<label>${k}</label>
+			<span class="swatch"><input type="color" data-color-key="${k}" value="${v}" /></span>
+		</div>`).join("");
+}
+
+// ================= RIGHT SIDEBAR (components) =================
+function renderRightSidebar() {
+	const sidebar = $("#right-sidebar");
+	sidebar.innerHTML = GROUPS.map((g) => `
+		<div class="section">
+			<div class="section-label">${g.label}</div>
+			${g.members.map((m) => {
+				const grp = groupOf(m);
+				const overridden = working.groups[grp].radius !== null;
+				return `<button class="item" data-select="${m}" data-active="${selected === m}">
+					${m}<span class="tag">${overridden ? "●" : ""}</span>
+				</button>`;
+			}).join("")}
+		</div>`).join("");
+}
+
+function groupOf(component) {
+	for (const g of GROUPS) if (g.members.includes(component)) return g.id;
+	return "surface";
+}
+
+// ================= BOTTOM PANEL (selected component overrides) =================
+function renderPanel() {
+	const panel = $("#panel");
+	if (!selected) {
+		panel.innerHTML = `<div class="panel-empty">Select a component on the right → its overrides show here. Unset rows inherit the General values.</div>`;
+		return;
+	}
+	const grp = groupOf(selected);
+	const g = working.groups[grp];
+	const rr = resolvedGroupRadius(grp);
+	const cv = convertValue(rr.value, "radius", rr.mode);
+
+	let sizeRows = "";
+	if (grp === "overlay") {
+		sizeRows = `<h4>sizes</h4>` + Object.entries(g.sizes).map(([sizeKey, w]) => {
+			const res = convertValue(w, "width", "convert");
+			return `<div class="row">
+				<span class="attr">size.${sizeKey} · width</span>
+				<input type="text" data-size-value="${sizeKey}" value="${w}" />
+				<button class="toggle" disabled>Convert</button>
+				<span class="resolved" title="${res.display}">${res.display}</span>
+				<span>⚡</span>
+			</div>`;
+		}).join("");
+	}
+
+	panel.innerHTML = `
+		<h4>${selected} · group: ${grp}${rr.inherits ? " · radius inherits GENERAL" : " · radius override"}</h4>
+		<div class="row">
+			<span class="attr">radius</span>
+			<input type="text" data-radius-value="${grp}" value="${rr.value}" ${rr.inherits ? 'style="opacity:.6"' : ""} ${rr.inherits ? "disabled" : ""} />
+			<button class="toggle" data-radius-toggle="${grp}" data-active="${rr.mode === "as-is"}" ${rr.inherits ? "disabled" : ""}>${rr.inherits ? "inherits base" : rr.mode === "convert" ? "Convert" : "Keep as-is"}</button>
+			<span class="resolved" title="${cv.display}">${rr.inherits ? "→ global (" + cv.display + ")" : cv.display}</span>
+			<span>${cv.className ? "⚡" : "🔒"}</span>
+		</div>
+		<div class="row">
+			<span class="attr">+ create override</span>
+			<button class="toggle" data-unset-toggle="${grp}" style="grid-column:2/5">${rr.inherits ? "✎ set own value" : "↺ inherit from general"}</button>
+		</div>
+		${sizeRows}
+	`;
+}
+
+// ================= EVENTS =================
+document.addEventListener("input", (e) => {
+	const t = e.target;
+	if (t.dataset.fontFamily) { working.fonts[t.dataset.fontFamily].family = t.value; markDirty(); applyPreview(); }
+	if (t.dataset.fontUrl) { working.fonts[t.dataset.fontUrl].source = t.value || null; markDirty(); applyPreview(); }
+	if (t.dataset.fontFiles) { working.fonts[t.dataset.fontFiles].files = t.value || null; markDirty(); applyPreview(); }
+	if (t.dataset.radiusBase) { working.radius.base = t.value; markDirty(); applyPreview(); }
+	if (t.dataset.radiusShift) { working.radius.shift = t.value; markDirty(); applyPreview(); }
+	if (t.dataset.roleSize) { working.typeRoles[t.dataset.roleSize].size = t.value; markDirty(); applyPreview(); }
+	if (t.dataset.spacingBase) { working.spacing.base = t.value; markDirty(); }
+	if (t.dataset.breakpoint) { working.breakpoints.md = t.value; markDirty(); }
+	if (t.dataset.anim) { working.animation.base = t.value; markDirty(); applyPreview(); }
+	if (t.dataset.sizeValue) { working.groups.overlay.sizes[t.dataset.sizeValue] = t.value; markDirty(); applyPreview(); renderPanel(); }
+	if (t.dataset.radiusValue) {
+		const g = working.groups[t.dataset.radiusValue];
+		if (!g.radius) g.radius = { value: working.radius.base, mode: "convert" };
+		g.radius.value = t.value; markDirty(); applyPreview(); renderRightSidebar(); renderPanel();
+	}
+});
+
+document.addEventListener("change", (e) => {
+	const t = e.target;
+	if (t.dataset.colorKey) { working.colors[theme][t.dataset.colorKey] = t.value; markDirty(); applyPreview(); }
+	if (t.dataset.fontQuick) {
+		const pick = t.value;
+		if (!pick) return;
+		const FAMILIES = {
+			Inter: { family: '"Inter", ui-sans-serif, system-ui', source: "https://fonts.googleapis.com/css2?family=Inter:wght@400..600" },
+			Sora: { family: '"Sora", "Inter", ui-sans-serif, system-ui', source: "https://fonts.googleapis.com/css2?family=Sora:wght@400..800" },
+			"JetBrains Mono": { family: '"JetBrains Mono", ui-monospace', source: "https://fonts.googleapis.com/css2?family=JetBrains+Mono" },
+		};
+		const fam = FAMILIES[pick];
+		if (fam) { Object.assign(working.fonts.body, fam); markDirty(); applyPreview(); bindGeneral(); }
+		t.value = "";
+	}
+});
+
+document.addEventListener("click", (e) => {
+	const t = e.target;
+	if (t.dataset.select) { selected = t.dataset.select; renderRightSidebar(); renderPanel(); }
+	if (t.dataset.radiusToggle) {
+		const g = working.groups[t.dataset.radiusToggle];
+		if (!g.radius) return;
+		g.radius.mode = g.radius.mode === "convert" ? "as-is" : "convert";
+		markDirty(); applyPreview(); renderPanel();
+	}
+	if (t.dataset.unsetToggle) {
+		const grp = t.dataset.unsetToggle;
+		const g = working.groups[grp];
+		if (g.radius) g.radius = null; else g.radius = { value: working.radius.base, mode: "convert" };
+		markDirty(); applyPreview(); renderRightSidebar(); renderPanel();
+	}
+	if (t.id === "theme-toggle") {
+		theme = theme === "light" ? "dark" : "light";
+		document.documentElement.dataset.theme = theme;
+		$("#theme-toggle").textContent = theme === "light" ? "◐ dark" : "◑ light";
+		applyPreview(); bindGeneral();
+	}
+	if (t.id === "reset-btn") {
+		working = structuredClone(mockPreset); dirty = false;
+		$("#dirty-label").textContent = "saved"; $("#save-btn").disabled = true;
+		applyPreview(); bindGeneral(); renderRightSidebar(); renderPanel();
+	}
+	if (t.id === "save-btn") {
+		dirty = false; $("#dirty-label").textContent = "saved ✓"; $("#save-btn").disabled = true;
+		$(".banner").textContent = "Prototype — simulated save. (Real app: POST /api/save → zod → .backup → codemod + codegen → report.)";
+	}
+});
+
+// ================= INIT =================
+applyPreview();
+bindGeneral();
+renderRightSidebar();
+renderPanel();
+</script>
+</body>
+</html>

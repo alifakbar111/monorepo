@@ -14,6 +14,7 @@
     "scripts": {
         "dev": "vite build --watch",
         "build": "NODE_ENV=production vite build",
+        "preset": "pnpm --filter @repo/preset-engine dev",
         "storybook": "storybook dev -p 6006 --no-open",
         "storybook-build": "storybook build -o storybook-static",
         "cleanup": "pnpm dlx del-cli dist node_modules pnpm-lock.yaml storybook-static",

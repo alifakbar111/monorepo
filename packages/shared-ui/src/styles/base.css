@@ -1,0 +1,27 @@
+/*
+ * Shared base layer + debug utility.
+ *
+ * Partial — see the note in `./theme.css`. Requires the tokens from
+ * `./colors.css` and `./theme.css` to be imported first (it `@apply`s
+ * `border-border`, `bg-background`, `text-foreground`, `font-sans`).
+ */
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	html,
+	body {
+		@apply antialiased min-h-screen scroll-smooth;
+	}
+	body {
+		@apply bg-background text-foreground font-sans;
+	}
+}
+
+/* Debug element */
+@utility debug {
+	border-width: 1px;
+	border-style: dashed;
+	border-color: #f87171;
+}

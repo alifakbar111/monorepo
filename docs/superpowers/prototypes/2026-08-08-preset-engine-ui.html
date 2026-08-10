@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preset Engine — shadcn/ui Style</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          colors: {
+            background: 'var(--background)', foreground: 'var(--foreground)',
+            primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' },
+            secondary: { DEFAULT: 'var(--secondary)', foreground: 'var(--secondary-foreground)' },
+            muted: { DEFAULT: 'var(--muted)', foreground: 'var(--muted-foreground)' },
+            accent: { DEFAULT: 'var(--accent)', foreground: 'var(--accent-foreground)' },
+            destructive: { DEFAULT: 'var(--destructive)', foreground: 'var(--destructive-foreground)' },
+            border: 'var(--border)', input: 'var(--input)', ring: 'var(--ring)',
+            card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
+          },
+          borderRadius: { lg: 'var(--radius)', md: 'calc(var(--radius) - 2px)', sm: 'calc(var(--radius) - 4px)' },
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --background: oklch(1 0 0); --foreground: oklch(0.145 0 0);
+      --primary: oklch(0.205 0 0); --primary-foreground: oklch(0.985 0 0);
+      --secondary: oklch(0.97 0 0); --secondary-foreground: oklch(0.205 0 0);
+      --muted: oklch(0.97 0 0); --muted-foreground: oklch(0.556 0 0);
+      --accent: oklch(0.97 0 0); --accent-foreground: oklch(0.205 0 0);
+      --destructive: oklch(0.577 0.245 27.325); --destructive-foreground: oklch(0.985 0 0);
+      --border: oklch(0.922 0 0); --input: oklch(0.922 0 0); --ring: oklch(0.708 0 0);
+      --card: oklch(1 0 0); --card-foreground: oklch(0.145 0 0);
+      --radius: 0.625rem;
+      --font-heading: "Merriweather", Georgia, serif;
+      --font-body: "Roboto", ui-sans-serif, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    .app-layout { display: grid; grid-template-columns: 22rem 1fr 18rem; height: 100vh; font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+    .sidebar { border-right: 1px solid var(--border); background: var(--background); overflow-y: auto; display: flex; flex-direction: column; }
+    .sidebar-header { padding: 1rem 1rem 0.75rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--background); z-index: 10; }
+    .sidebar-header h1 { font-size: 0.875rem; font-weight: 700; }
+    .sidebar-header p { font-size: 0.6875rem; color: var(--muted-foreground); margin-top: 0.125rem; }
+    .sidebar-content { flex: 1; padding: 0.5rem 0; overflow-y: auto; }
+    .section { border-bottom: 1px solid var(--border); }
+    .section-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0.5rem 1rem; background: none; border: none; cursor: pointer; font-size: 0.75rem; font-weight: 600; color: var(--foreground); text-align: left; transition: background 0.1s; }
+    .section-trigger:hover { background: var(--muted); }
+    .section-trigger .chevron { width: 1rem; height: 1rem; transition: transform 0.2s; color: var(--muted-foreground); }
+    .section-trigger[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+    .section-body { padding: 0 1rem 0.75rem; overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s ease; }
+    .section-body.collapsed { max-height: 0 !important; padding: 0 1rem; opacity: 0; }
+    .token-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0; }
+    .token-label { width: 7.5rem; flex-shrink: 0; font-size: 0.6875rem; color: var(--muted-foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .token-input { flex: 1; border: 1px solid var(--input); border-radius: var(--radius); background: var(--background); padding: 0.25rem 0.5rem; font-size: 0.6875rem; font-family: 'JetBrains Mono', ui-monospace, monospace; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+    .token-input:focus { border-color: var(--ring); box-shadow: 0 0 0 2px oklch(0.708 0 0 / 0.15); }
+    .color-swatch-btn { width: 1.75rem; height: 1.75rem; border-radius: calc(var(--radius) - 2px); border: 1px solid var(--border); cursor: pointer; flex-shrink: 0; position: relative; overflow: hidden; }
+    .color-swatch-btn input[type="color"] { position: absolute; inset: -0.25rem; width: 200%; height: 200%; cursor: pointer; border: none; padding: 0; }
+    .theme-toggle { display: flex; background: var(--muted); border-radius: var(--radius); padding: 2px; gap: 2px; }
+    .theme-toggle button { flex: 1; padding: 0.3125rem 0.5rem; border: none; border-radius: calc(var(--radius) - 2px); background: transparent; font-size: 0.6875rem; font-weight: 500; color: var(--muted-foreground); cursor: pointer; transition: all 0.15s; }
+    .theme-toggle button.active { background: var(--background); color: var(--foreground); box-shadow: 0 1px 2px oklch(0 0 0 / 0.06); }
+    .canvas { background: var(--muted); overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; }
+    .canvas-frame { flex: 1; background: var(--background); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.5); padding: 2rem; overflow-y: auto; }
+    .canvas-frame .section-title { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    .canvas-frame .component-row { margin-bottom: 2rem; }
+    .right-panel { border-left: 1px solid var(--border); background: var(--background); overflow-y: auto; display: flex; flex-direction: column; }
+    .right-panel-header { padding: 1rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--background); z-index: 10; display: flex; align-items: center; justify-content: space-between; }
+    .right-panel-header h2 { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); }
+    .right-panel-content { flex: 1; padding: 0.75rem 1rem; }
+    .token-state-row { display: flex; justify-content: space-between; align-items: baseline; padding: 0.25rem 0; border-bottom: 1px solid var(--border); font-size: 0.625rem; }
+    .token-state-key { color: var(--muted-foreground); font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .token-state-val { color: var(--foreground); font-family: 'JetBrains Mono', ui-monospace, monospace; max-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
+    .right-panel-footer { padding: 0.75rem 1rem; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.5rem; position: sticky; bottom: 0; background: var(--background); }
+    .btn-primary { display: flex; align-items: center; justify-content: center; gap: 0.375rem; padding: 0.5rem 1rem; border-radius: var(--radius); background: var(--primary); color: var(--primary-foreground); border: none; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-outline { display: flex; align-items: center; justify-content: center; gap: 0.375rem; padding: 0.5rem 1rem; border-radius: var(--radius); background: var(--background); color: var(--foreground); border: 1px solid var(--border); font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+    .btn-outline:hover { background: var(--muted); }
+    .radius-preview-grid { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .radius-preview-item { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+    .radius-preview-box { width: 2.5rem; height: 2.5rem; border: 2px solid var(--primary); background: oklch(from var(--primary) l c h / 0.08); }
+    .radius-preview-label { font-size: 0.5625rem; color: var(--muted-foreground); font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+    .status-dot.clean { background: oklch(0.65 0.19 145); }
+    .status-dot.dirty { background: oklch(0.7 0.19 50); }
+    .sidebar::-webkit-scrollbar, .sidebar-content::-webkit-scrollbar, .canvas::-webkit-scrollbar, .canvas-frame::-webkit-scrollbar, .right-panel::-webkit-scrollbar, .right-panel-content::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb, .right-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-background text-foreground antialiased">
+  <div class="app-layout">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header"><h1>Preset Engine</h1><p>Edit tokens · Live preview · Save to shared-ui</p></div>
+      <div class="sidebar-content">
+        <div style="padding:0.75rem 1rem;"><div class="theme-toggle" id="theme-toggle"><button class="active" onclick="setTheme('light')">☀️ Light</button><button onclick="setTheme('dark')">🌙 Dark</button><button onclick="setTheme('system')">💻 System</button></div></div>
+        <!-- Colors -->
+        <div class="section"><button class="section-trigger" aria-expanded="true" onclick="toggleSection(this)"><span>🎨 Colors</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button><div class="section-body" id="section-colors"><div style="font-size:0.625rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted-foreground);margin:0.5rem 0 0.25rem;">Foreground</div><div id="fg-colors"></div><div style="font-size:0.625rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted-foreground);margin:0.75rem 0 0.25rem;">Background</div><div id="bg-colors"></div><div style="font-size:0.625rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted-foreground);margin:0.75rem 0 0.25rem;">Component</div><div id="comp-colors"></div><div style="font-size:0.625rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted-foreground);margin:0.75rem 0 0.25rem;">Chart</div><div id="chart-colors"></div><div style="font-size:0.625rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted-foreground);margin:0.75rem 0 0.25rem;">Sidebar</div><div id="sidebar-colors"></div></div></div>
+        <!-- Typography -->
+        <div class="section"><button class="section-trigger" aria-expanded="true" onclick="toggleSection(this)"><span>🔤 Typography</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button><div class="section-body" id="section-typography"><div style="font-size:0.625rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted-foreground);margin:0.5rem 0 0.25rem;">Heading Font</div><div class="token-row"><span class="token-label">font-heading</span><input class="token-input" id="font-heading-name" value='"Merriweather", Georgia, serif' oninput="updateFont('heading', this.value)" /></div><div class="token-row" style="margin-top:0.125rem;"><span class="token-label" style="font-size:0.5625rem;color:var(--accent-foreground);">Font URL</span><input class="token-input" id="font-heading-url" placeholder="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700" oninput="loadFont('heading', this.value)" style="font-size:0.625rem;" /></div><div style="font-size:0.625rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted-foreground);margin:0.75rem 0 0.25rem;">Body / Text Font</div><div class="token-row"><span class="token-label">font-body</span><input class="token-input" id="font-body-name" value='"Roboto", ui-sans-serif, sans-serif' oninput="updateFont('body', this.value)" /></div><div class="token-row" style="margin-top:0.125rem;"><span class="token-label" style="font-size:0.5625rem;color:var(--accent-foreground);">Font URL</span><input class="token-input" id="font-body-url" placeholder="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700" oninput="loadFont('body', this.value)" style="font-size:0.625rem;" /></div><div style="font-size:0.625rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted-foreground);margin:0.75rem 0 0.25rem;">Mono Font</div><div class="token-row"><span class="token-label">font-mono</span><input class="token-input" id="font-mono-name" value='"JetBrains Mono", ui-monospace, monospace' oninput="updateFont('mono', this.value)" /></div><div class="token-row" style="margin-top:0.125rem;"><span class="token-label" style="font-size:0.5625rem;color:var(--accent-foreground);">Font URL</span><input class="token-input" id="font-mono-url" placeholder="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500" oninput="loadFont('mono', this.value)" style="font-size:0.625rem;" /></div></div></div>
+        <!-- Radius -->
+        <div class="section"><button class="section-trigger" aria-expanded="true" onclick="toggleSection(this)"><span>◐ Radius</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button><div class="section-body" id="section-radius"><div class="token-row"><span class="token-label">Base radius</span><div style="display:flex;align-items:center;flex:1;"><input class="token-input" id="radius-input" value="0.625" oninput="updateRadius(this.value)" style="max-width:5rem;border-radius:var(--radius) 0 0 var(--radius);" type="number" step="0.0625" min="0" /><span style="display:flex;align-items:center;justify-content:center;height:1.5rem;padding:0 0.5rem;background:var(--muted);border:1px solid var(--input);border-left:none;border-radius:0 var(--radius) var(--radius) 0;font-size:0.625rem;font-family:'JetBrains Mono',monospace;color:var(--muted-foreground);white-space:nowrap;">rem</span></div></div><div class="radius-preview-grid" style="margin-top:0.5rem;" id="radius-preview"></div></div></div>
+        <!-- Spacing -->
+        <div class="section"><button class="section-trigger" aria-expanded="false" onclick="toggleSection(this)"><span>📐 Spacing</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button><div class="section-body collapsed" id="section-spacing"><div class="token-row"><span class="token-label">Base spacing</span><div style="display:flex;align-items:center;flex:1;"><input class="token-input" value="0.25" oninput="markDirty()" style="max-width:5rem;border-radius:var(--radius) 0 0 var(--radius);" type="number" step="0.0625" min="0" /><span style="display:flex;align-items:center;justify-content:center;height:1.5rem;padding:0 0.5rem;background:var(--muted);border:1px solid var(--input);border-left:none;border-radius:0 var(--radius) var(--radius) 0;font-size:0.625rem;font-family:'JetBrains Mono',monospace;color:var(--muted-foreground);white-space:nowrap;">rem</span></div></div><div class="token-row"><span class="token-label">Sidebar width</span><div style="display:flex;align-items:center;flex:1;"><input class="token-input" value="16" oninput="markDirty()" style="max-width:5rem;border-radius:var(--radius) 0 0 var(--radius);" type="number" step="0.5" min="0" /><span style="display:flex;align-items:center;justify-content:center;height:1.5rem;padding:0 0.5rem;background:var(--muted);border:1px solid var(--input);border-left:none;border-radius:0 var(--radius) var(--radius) 0;font-size:0.625rem;font-family:'JetBrains Mono',monospace;color:var(--muted-foreground);white-space:nowrap;">rem</span></div></div></div></div>
+        <!-- Shadows -->
+        <div class="section"><button class="section-trigger" aria-expanded="false" onclick="toggleSection(this)"><span>💨 Shadows</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button><div class="section-body collapsed" id="section-shadows"><div class="token-row"><span class="token-label">shadow-sm</span><input class="token-input" value="0 1px 2px oklch(0 0 0 / 0.05)" oninput="markDirty()" /></div><div class="token-row"><span class="token-label">shadow-md</span><input class="token-input" value="0 4px 6px oklch(0 0 0 / 0.07)" oninput="markDirty()" /></div><div class="token-row"><span class="token-label">shadow-lg</span><input class="token-input" value="0 10px 15px oklch(0 0 0 / 0.1)" oninput="markDirty()" /></div></div></div>
+        <!-- Breakpoints -->
+        <div class="section"><button class="section-trigger" aria-expanded="false" onclick="toggleSection(this)"><span>📱 Breakpoints</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button><div class="section-body collapsed" id="section-breakpoints"><div class="token-row"><span class="token-label">sm</span><div style="display:flex;align-items:center;flex:1;"><input class="token-input" value="40" oninput="markDirty()" style="max-width:4rem;border-radius:var(--radius) 0 0 var(--radius);" type="number" step="1" min="0" /><span style="display:flex;align-items:center;justify-content:center;height:1.5rem;padding:0 0.5rem;background:var(--muted);border:1px solid var(--input);border-left:none;border-radius:0 var(--radius) var(--radius) 0;font-size:0.625rem;font-family:'JetBrains Mono',monospace;color:var(--muted-foreground);white-space:nowrap;">rem</span></div></div><div class="token-row"><span class="token-label">md</span><div style="display:flex;align-items:center;flex:1;"><input class="token-input" value="48" oninput="markDirty()" style="max-width:4rem;border-radius:var(--radius) 0 0 var(--radius);" type="number" step="1" min="0" /><span style="display:flex;align-items:center;justify-content:center;height:1.5rem;padding:0 0.5rem;background:var(--muted);border:1px solid var(--input);border-left:none;border-radius:0 var(--radius) var(--radius) 0;font-size:0.625rem;font-family:'JetBrains Mono',monospace;color:var(--muted-foreground);white-space:nowrap;">rem</span></div></div><div class="token-row"><span class="token-label">lg</span><div style="display:flex;align-items:center;flex:1;"><input class="token-input" value="64" oninput="markDirty()" style="max-width:4rem;border-radius:var(--radius) 0 0 var(--radius);" type="number" step="1" min="0" /><span style="display:flex;align-items:center;justify-content:center;height:1.5rem;padding:0 0.5rem;background:var(--muted);border:1px solid var(--input);border-left:none;border-radius:0 var(--radius) var(--radius) 0;font-size:0.625rem;font-family:'JetBrains Mono',monospace;color:var(--muted-foreground);white-space:nowrap;">rem</span></div></div><div class="token-row"><span class="token-label">xl</span><div style="display:flex;align-items:center;flex:1;"><input class="token-input" value="80" oninput="markDirty()" style="max-width:4rem;border-radius:var(--radius) 0 0 var(--radius);" type="number" step="1" min="0" /><span style="display:flex;align-items:center;justify-content:center;height:1.5rem;padding:0 0.5rem;background:var(--muted);border:1px solid var(--input);border-left:none;border-radius:0 var(--radius) var(--radius) 0;font-size:0.625rem;font-family:'JetBrains Mono',monospace;color:var(--muted-foreground);white-space:nowrap;">rem</span></div></div><div class="token-row"><span class="token-label">2xl</span><div style="display:flex;align-items:center;flex:1;"><input class="token-input" value="96" oninput="markDirty()" style="max-width:4rem;border-radius:var(--radius) 0 0 var(--radius);" type="number" step="1" min="0" /><span style="display:flex;align-items:center;justify-content:center;height:1.5rem;padding:0 0.5rem;background:var(--muted);border:1px solid var(--input);border-left:none;border-radius:0 var(--radius) var(--radius) 0;font-size:0.625rem;font-family:'JetBrains Mono',monospace;color:var(--muted-foreground);white-space:nowrap;">rem</span></div></div></div></div>
+      </div>
+    </aside>
+
+    <!-- CENTER CANVAS — FULL COMPONENT GALLERY -->
+    <main class="canvas">
+      <div class="canvas-frame" id="gallery-frame">
+
+        <!-- ═══ TYPOGRAPHY ═══ -->
+        <div class="component-row"><div class="section-title">Typography</div><div id="typography-preview" style="max-width:40rem;">
+          <h1 style="font-family:var(--font-heading);font-size:2.25rem;font-weight:700;line-height:1.2;margin-bottom:0.5rem;">Heading 1 — The quick brown fox</h1>
+          <h2 style="font-family:var(--font-heading);font-size:1.5rem;font-weight:600;line-height:1.3;margin-bottom:0.5rem;">Heading 2 — The quick brown fox</h2>
+          <h3 style="font-family:var(--font-heading);font-size:1.25rem;font-weight:600;line-height:1.3;margin-bottom:0.75rem;">Heading 3 — The quick brown fox</h3>
+          <p style="font-family:var(--font-body);font-size:1rem;line-height:1.6;margin-bottom:0.5rem;">Body text — Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          <p style="font-family:var(--font-body);font-size:0.875rem;line-height:1.5;margin-bottom:0.5rem;">Small text — Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+          <p style="font-family:var(--font-body);font-size:0.75rem;line-height:1.4;color:var(--muted-foreground);margin-bottom:0.75rem;">Caption — Duis aute irure dolor in reprehenderit.</p>
+          <div style="font-family:var(--font-mono);font-size:0.8125rem;background:var(--muted);padding:0.75rem 1rem;border-radius:var(--radius);overflow-x:auto;">const greeting = "Hello, world!"; // mono font</div>
+        </div></div>
+
+        <!-- ═══ BUTTONS ═══ -->
+        <div class="component-row"><div class="section-title">Buttons — Variants</div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+            <button class="inline-flex items-center justify-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-gray-900/90" style="height:2.25rem;">default</button>
+            <button class="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary/90" style="height:2.25rem;">primary</button>
+            <button class="inline-flex items-center justify-center gap-2 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground shadow-xs transition-colors hover:bg-secondary/80" style="height:2.25rem;">secondary</button>
+            <button class="inline-flex items-center justify-center gap-2 rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground shadow-xs transition-colors hover:bg-destructive/90" style="height:2.25rem;">destructive</button>
+            <button class="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground" style="height:2.25rem;">outline</button>
+            <button class="inline-flex items-center justify-center gap-2 rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground" style="height:2.25rem;">ghost</button>
+            <button class="inline-flex items-center justify-center gap-2 rounded-md text-primary text-sm font-medium underline-offset-4 transition-colors hover:underline" style="height:2.25rem;padding:0 0.5rem;">link</button>
+          </div>
+        </div>
+        <div class="component-row"><div class="section-title">Buttons — Sizes</div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+            <button class="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground" style="height:2rem;">sm</button>
+            <button class="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground" style="height:2.25rem;">default</button>
+            <button class="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground" style="height:2.5rem;">lg</button>
+            <button class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground" style="height:2.25rem;width:2.25rem;padding:0;"><svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M8 2.5a.5.5 0 0 0-1 0V7H2.5a.5.5 0 0 0 0 1H7v4.5a.5.5 0 0 0 1 0V8h4.5a.5.5 0 0 0 0-1H8V2.5Z" fill="currentColor"/></svg></button>
+          </div>
+        </div>
+
+        <!-- ═══ BADGES ═══ -->
+        <div class="component-row"><div class="section-title">Badges — Variants</div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.375rem;align-items:center;">
+            <span class="inline-flex items-center rounded-md border border-transparent bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">default</span>
+            <span class="inline-flex items-center rounded-md border border-transparent bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">secondary</span>
+            <span class="inline-flex items-center rounded-md border border-transparent bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">success</span>
+            <span class="inline-flex items-center rounded-md border border-transparent bg-destructive px-2.5 py-0.5 text-xs font-medium text-destructive-foreground">destructive</span>
+            <span class="inline-flex items-center rounded-md border border-input bg-background px-2.5 py-0.5 text-xs font-medium text-foreground/80">outline</span>
+            <span class="inline-flex items-center rounded-md border border-transparent bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-700">info</span>
+            <span class="inline-flex items-center rounded-md border border-transparent bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">warning</span>
+            <span class="inline-flex items-center rounded-md border border-transparent px-2.5 py-0.5 text-xs font-medium text-muted-foreground">ghost</span>
+          </div>
+        </div>
+        <div class="component-row"><div class="section-title">Badges — Sizes + Rounded</div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.375rem;align-items:center;">
+            <span class="inline-flex items-center rounded-md bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">sm · rounded-md</span>
+            <span class="inline-flex items-center rounded-md bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">default · rounded-md</span>
+            <span class="inline-flex items-center rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground">lg · rounded-md</span>
+            <span class="inline-flex items-center rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">default · rounded-full</span>
+          </div>
+        </div>
+
+        <!-- ═══ ALERTS ═══ -->
+        <div class="component-row"><div class="section-title">Alerts — Variants</div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:36rem;">
+            <div class="rounded-lg border border-border bg-background p-4 text-sm relative" style="display:flex;gap:0.75rem;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px;"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5M8 10.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><div><h5 class="font-medium leading-none tracking-tight" style="margin-bottom:0.25rem;">default</h5><p class="text-muted-foreground">This is the default alert variant.</p></div></div>
+            <div class="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm relative" style="display:flex;gap:0.75rem;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px;color:var(--destructive);"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5M8 10.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><div><h5 class="font-medium leading-none tracking-tight text-destructive" style="margin-bottom:0.25rem;">destructive</h5><p class="text-destructive">This is the destructive alert variant.</p></div></div>
+          </div>
+        </div>
+
+        <!-- ═══ INPUTS ═══ -->
+        <div class="component-row"><div class="section-title">Inputs</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;max-width:36rem;">
+            <div><label class="text-sm font-medium leading-none" style="display:block;margin-bottom:0.375rem;">Default</label><input class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50" placeholder="Placeholder text" /></div>
+            <div><label class="text-sm font-medium leading-none" style="display:block;margin-bottom:0.375rem;">Email</label><input class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50" placeholder="name@example.com" type="email" /></div>
+            <div style="grid-column:span 2;"><label class="text-sm font-medium leading-none" style="display:block;margin-bottom:0.375rem;">With addon</label><div style="display:flex;"><span class="inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">@</span><input class="flex h-9 flex-1 rounded-r-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50" placeholder="shadcn" /></div></div>
+            <div><label class="text-sm font-medium leading-none" style="display:block;margin-bottom:0.375rem;">Disabled</label><input class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs opacity-50 cursor-not-allowed" placeholder="Disabled" disabled /></div>
+            <div><label class="text-sm font-medium leading-none" style="display:block;margin-bottom:0.375rem;">Password</label><input class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50" type="password" placeholder="••••••••" /></div>
+          </div>
+        </div>
+
+        <!-- ═══ INPUT OTP ═══ -->
+        <div class="component-row"><div class="section-title">Input OTP — Sizes</div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div><span class="text-[10px] text-muted-foreground">sm</span><div class="flex items-center gap-2 mt-1"><div class="flex items-center justify-center size-7 rounded-l-md border border-input border-y border-r text-xs">1</div><div class="flex items-center justify-center size-7 border-y border-r border-input text-xs">2</div><div class="flex items-center justify-center size-7 border-y border-r border-input text-xs">3</div><div class="flex items-center justify-center size-7 rounded-r-md border border-input text-xs">4</div></div></div>
+            <div><span class="text-[10px] text-muted-foreground">default</span><div class="flex items-center gap-2 mt-1"><div class="flex items-center justify-center size-9 rounded-l-md border border-input border-y border-r text-sm ring-1 ring-ring">1</div><div class="flex items-center justify-center size-9 border-y border-r border-input text-sm">2</div><div class="flex items-center justify-center size-9 border-y border-r border-input text-sm">3</div><div class="flex items-center justify-center size-9 rounded-r-md border border-input text-sm">4</div></div></div>
+            <div><span class="text-[10px] text-muted-foreground">lg</span><div class="flex items-center gap-2 mt-1"><div class="flex items-center justify-center size-11 rounded-l-md border border-input border-y border-r text-base">1</div><div class="flex items-center justify-center size-11 border-y border-r border-input text-base">2</div><div class="flex items-center justify-center size-11 border-y border-r border-input text-base">3</div><div class="flex items-center justify-center size-11 rounded-r-md border border-input text-base">4</div></div></div>
+          </div>
+        </div>
+
+        <!-- ═══ TEXTAREA ═══ -->
+        <div class="component-row"><div class="section-title">Textarea</div>
+          <div style="max-width:24rem;"><textarea class="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50" placeholder="Type your message here."></textarea></div>
+        </div>
+
+        <!-- ═══ CHECKBOX ═══ -->
+        <div class="component-row"><div class="section-title">Checkbox</div>
+          <div style="display:flex;gap:1.5rem;align-items:center;">
+            <div class="flex items-center gap-2"><div class="size-4 shrink-0 rounded-sm border border-primary shadow-sm bg-primary flex items-center justify-center"><svg width="10" height="10" viewBox="0 0 15 15" fill="none"><path d="M11.4669 3.72684C11.7558 3.91574 11.8369 4.30308 11.648 4.59198L7.39799 11.092C7.29783 11.2452 7.13556 11.3467 6.95402 11.3699C6.77247 11.3931 6.58989 11.3354 6.45446 11.2124L3.70446 8.71241C3.44905 8.48022 3.43023 8.08494 3.66242 7.82953C3.89461 7.57412 4.28989 7.55529 4.5453 7.78749L6.75292 9.79441L10.6018 3.90792C10.7907 3.61902 11.178 3.53795 11.4669 3.72684Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"/></svg></div><span class="text-sm">Checked</span></div>
+            <div class="flex items-center gap-2"><div class="size-4 shrink-0 rounded-sm border border-primary shadow-sm"></div><span class="text-sm">Unchecked</span></div>
+            <div class="flex items-center gap-2"><div class="size-4 shrink-0 rounded-sm border border-primary shadow-sm opacity-50"></div><span class="text-sm">Disabled</span></div>
+          </div>
+        </div>
+
+        <!-- ═══ SWITCH ═══ -->
+        <div class="component-row"><div class="section-title">Switch</div>
+          <div style="display:flex;gap:1.5rem;align-items:center;">
+            <div class="flex items-center gap-2"><div class="inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-xs bg-primary"><div class="block size-4 rounded-full bg-background shadow-lg translate-x-4"></div></div><span class="text-sm">Checked</span></div>
+            <div class="flex items-center gap-2"><div class="inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-xs bg-input"><div class="block size-4 rounded-full bg-background shadow-lg translate-x-0"></div></div><span class="text-sm">Unchecked</span></div>
+          </div>
+        </div>
+
+        <!-- ═══ RADIO GROUP ═══ -->
+        <div class="component-row"><div class="section-title">Radio Group — Orientations</div>
+          <div style="display:flex;gap:2rem;">
+            <div><span class="text-[10px] text-muted-foreground">vertical</span><div class="grid gap-2 mt-1"><div class="flex items-center gap-2"><div class="aspect-square size-4 rounded-full border border-primary shadow-sm flex items-center justify-center"><div class="size-1.5 rounded-full bg-primary"></div></div><span class="text-sm">Option A</span></div><div class="flex items-center gap-2"><div class="aspect-square size-4 rounded-full border border-primary shadow-sm"></div><span class="text-sm">Option B</span></div></div></div>
+            <div><span class="text-[10px] text-muted-foreground">horizontal</span><div class="flex gap-4 mt-1"><div class="flex items-center gap-2"><div class="aspect-square size-4 rounded-full border border-primary shadow-sm flex items-center justify-center"><div class="size-1.5 rounded-full bg-primary"></div></div><span class="text-sm">Option A</span></div><div class="flex items-center gap-2"><div class="aspect-square size-4 rounded-full border border-primary shadow-sm"></div><span class="text-sm">Option B</span></div></div></div>
+          </div>
+        </div>
+
+        <!-- ═══ SELECT ═══ -->
+        <div class="component-row"><div class="section-title">Select</div>
+          <div style="max-width:18rem;"><div class="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs"><span>Select a fruit...</span><svg width="15" height="15" viewBox="0 0 15 15" fill="none" class="size-4 opacity-50"><path d="M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.49999 8.86362L10.1818 6.18181C10.3575 6.00608 10.6424 6.00608 10.8182 6.18181C10.9939 6.35755 10.9939 6.64247 10.8182 6.81821L7.81819 9.81821C7.73379 9.9026 7.61934 9.95001 7.49999 9.95001C7.38064 9.95001 7.26618 9.9026 7.18179 9.81821L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"/></svg></div></div>
+        </div>
+
+        <!-- ═══ TOGGLE ═══ -->
+        <div class="component-row"><div class="section-title">Toggle — Variants + Sizes</div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div><span class="text-[10px] text-muted-foreground">variant: default</span><div class="flex gap-2 mt-1">
+              <button class="inline-flex items-center justify-center gap-2 rounded-md bg-transparent font-medium text-sm h-9 min-w-9 px-2 hover:bg-muted hover:text-muted-foreground">B</button>
+              <button class="inline-flex items-center justify-center gap-2 rounded-md bg-transparent font-medium text-sm h-8 min-w-8 px-1.5 hover:bg-muted hover:text-muted-foreground text-xs">sm</button>
+              <button class="inline-flex items-center justify-center gap-2 rounded-md bg-transparent font-medium text-sm h-10 min-w-10 px-2.5 hover:bg-muted hover:text-muted-foreground">lg</button>
+            </div></div>
+            <div><span class="text-[10px] text-muted-foreground">variant: outline</span><div class="flex gap-2 mt-1">
+              <button class="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-transparent font-medium text-sm h-9 min-w-9 px-2 shadow-xs hover:bg-accent hover:text-accent-foreground">B</button>
+              <button class="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-transparent font-medium text-sm h-8 min-w-8 px-1.5 shadow-xs hover:bg-accent hover:text-accent-foreground text-xs">sm</button>
+              <button class="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-transparent font-medium text-sm h-10 min-w-10 px-2.5 shadow-xs hover:bg-accent hover:text-accent-foreground">lg</button>
+            </div></div>
+          </div>
+        </div>
+
+        <!-- ═══ TOGGLE GROUP ═══ -->
+        <div class="component-row"><div class="section-title">Toggle Group</div>
+          <div class="flex items-center justify-center gap-1"><button class="inline-flex items-center justify-center gap-2 rounded-md bg-accent text-accent-foreground font-medium text-sm h-9 min-w-9 px-2">B</button><button class="inline-flex items-center justify-center gap-2 rounded-md bg-transparent font-medium text-sm h-9 min-w-9 px-2 hover:bg-muted hover:text-muted-foreground">I</button><button class="inline-flex items-center justify-center gap-2 rounded-md bg-transparent font-medium text-sm h-9 min-w-9 px-2 hover:bg-muted hover:text-muted-foreground">U</button></div>
+        </div>
+
+        <!-- ═══ PROGRESS ═══ -->
+        <div class="component-row"><div class="section-title">Progress — Sizes</div>
+          <div style="max-width:24rem;display:flex;flex-direction:column;gap:0.75rem;">
+            <div><span class="text-[10px] text-muted-foreground">sm (h-1)</span><div class="h-1 w-full overflow-hidden rounded-full bg-primary/20 mt-1"><div class="h-full w-3/5 rounded-full bg-primary"></div></div></div>
+            <div><span class="text-[10px] text-muted-foreground">default (h-2)</span><div class="h-2 w-full overflow-hidden rounded-full bg-primary/20 mt-1"><div class="h-full w-3/5 rounded-full bg-primary"></div></div></div>
+            <div><span class="text-[10px] text-muted-foreground">lg (h-3)</span><div class="h-3 w-full overflow-hidden rounded-full bg-primary/20 mt-1"><div class="h-full w-3/5 rounded-full bg-primary"></div></div></div>
+          </div>
+        </div>
+
+        <!-- ═══ SEPARATOR ═══ -->
+        <div class="component-row"><div class="section-title">Separator — Orientations</div>
+          <div style="max-width:36rem;display:flex;flex-direction:column;gap:1rem;">
+            <div><span class="text-[10px] text-muted-foreground">horizontal</span><div class="h-[1px] w-full bg-border mt-1"></div></div>
+            <div style="display:flex;height:3rem;align-items:center;"><span class="text-sm" style="width:4.5rem;">Left</span><div class="h-full w-[1px] bg-border mx-3"></div><span class="text-sm text-muted-foreground">vertical</span><div class="h-full w-[1px] bg-border mx-3"></div><span class="text-sm text-muted-foreground">Right</span></div>
+          </div>
+        </div>
+
+        <!-- ═══ CARDS ═══ -->
+        <div class="component-row"><div class="section-title">Cards — Slots (header, title, description, content, footer)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;max-width:40rem;">
+            <div class="rounded-lg border border-border bg-card text-card-foreground shadow-sm"><div class="flex flex-col space-y-1.5 p-6"><h3 class="font-semibold leading-none tracking-tight">Card Title</h3><p class="text-muted-foreground text-sm">Card description with current tokens.</p></div><div class="p-6 pt-0"><p class="text-sm">Card content area. This is the main body of the card.</p></div><div class="flex items-center p-6 pt-0 gap-2"><button class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">Action</button><button class="inline-flex items-center justify-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium">Cancel</button></div></div>
+            <div class="rounded-lg border border-border bg-card text-card-foreground shadow-sm"><div class="flex flex-col space-y-1.5 p-6"><h3 class="font-semibold leading-none tracking-tight">User Profile</h3><p class="text-muted-foreground text-sm">Card with avatar slot.</p></div><div class="p-6 pt-0"><div class="flex items-center gap-3"><div class="relative flex size-10 shrink-0 overflow-hidden rounded-full"><div class="flex size-full items-center justify-center rounded-full bg-muted text-sm font-medium">AB</div></div><div><div class="text-sm font-medium">Alice Builder</div><div class="text-xs text-muted-foreground">alice@example.com</div></div></div></div></div>
+          </div>
+        </div>
+
+        <!-- ═══ AVATAR ═══ -->
+        <div class="component-row"><div class="section-title">Avatar — Slots (base, image, fallback)</div>
+          <div style="display:flex;gap:0.75rem;align-items:center;">
+            <div class="relative flex size-10 shrink-0 overflow-hidden rounded-full"><div class="flex size-full items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">CN</div></div>
+            <div class="relative flex size-10 shrink-0 overflow-hidden rounded-full"><div class="flex size-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">AB</div></div>
+            <div class="relative flex size-10 shrink-0 overflow-hidden rounded-full"><div class="flex size-full items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground border-2 border-border">JD</div></div>
+          </div>
+        </div>
+
+        <!-- ═══ SKELETON ═══ -->
+        <div class="component-row"><div class="section-title">Skeleton</div>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;max-width:18rem;">
+            <div class="animate-pulse rounded-md bg-foreground/10 h-4 w-full"></div>
+            <div class="animate-pulse rounded-md bg-foreground/10 h-4 w-3/4"></div>
+            <div class="animate-pulse rounded-md bg-foreground/10 h-4 w-1/2"></div>
+          </div>
+        </div>
+
+        <!-- ═══ SLIDER ═══ -->
+        <div class="component-row"><div class="section-title">Slider</div>
+          <div style="max-width:24rem;"><div class="relative flex w-full touch-none select-none items-center"><div class="relative h-1.5 w-full grow overflow-hidden rounded-full bg-primary/20"><div class="absolute h-full w-3/5 bg-primary rounded-full"></div></div><div class="block size-4 rounded-full border border-primary/50 bg-background shadow-sm absolute" style="left:60%;transform:translateX(-50%);"></div></div></div>
+        </div>
+
+        <!-- ═══ TABLE ═══ -->
+        <div class="component-row"><div class="section-title">Table — Slots (wrapper, header, body, row, head, cell)</div>
+          <div class="rounded-lg border border-border overflow-hidden" style="max-width:40rem;">
+            <table style="width:100%;border-collapse:collapse;font-size:0.875rem;"><thead><tr style="border-bottom:1px solid var(--border);"><th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground">Invoice</th><th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground">Status</th><th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground">Method</th><th class="h-10 px-2 text-right align-middle font-medium text-muted-foreground">Amount</th></tr></thead><tbody><tr style="border-bottom:1px solid var(--border);transition-colors;"><td class="p-2 align-middle font-medium">INV001</td><td class="p-2 align-middle"><span class="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-[10px] font-medium">Pending</span></td><td class="p-2 align-middle">Credit Card</td><td class="p-2 align-middle text-right">$250.00</td></tr><tr style="border-bottom:1px solid var(--border);transition-colors;"><td class="p-2 align-middle font-medium">INV002</td><td class="p-2 align-middle"><span class="inline-flex items-center rounded-md border border-transparent bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">Paid</span></td><td class="p-2 align-middle">PayPal</td><td class="p-2 align-middle text-right">$150.00</td></tr><tr><td class="p-2 align-middle font-medium">INV003</td><td class="p-2 align-middle"><span class="inline-flex items-center rounded-md border border-transparent bg-destructive px-2 py-0.5 text-[10px] font-medium text-destructive-foreground">Failed</span></td><td class="p-2 align-middle">Bank Transfer</td><td class="p-2 align-middle text-right">$350.00</td></tr></tbody></table>
+          </div>
+        </div>
+
+        <!-- ═══ TABS ═══ -->
+        <div class="component-row"><div class="section-title">Tabs — Slots (list, trigger, content)</div>
+          <div style="max-width:36rem;"><div class="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground"><button class="inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md px-3 py-1 font-medium text-sm bg-background text-foreground shadow">Account</button><button class="inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md px-3 py-1 font-medium text-sm">Password</button><button class="inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md px-3 py-1 font-medium text-sm">Settings</button></div><div class="mt-2 p-4 rounded-md border border-border bg-card text-card-foreground"><p class="text-sm">Tab content area. This is where the tab panel content goes.</p></div></div>
+        </div>
+
+        <!-- ═══ BREADCRUMB ═══ -->
+        <div class="component-row"><div class="section-title">Breadcrumb — Slots (list, item, link, page, separator, ellipsis)</div>
+          <nav class="flex flex-wrap items-center gap-1.5 text-muted-foreground text-sm sm:gap-2.5"><div class="inline-flex items-center gap-1.5"><a class="transition-colors hover:text-foreground" href="#">Home</a></div><span class="flex items-center gap-1.5"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span><div class="inline-flex items-center gap-1.5"><a class="transition-colors hover:text-foreground" href="#">Library</a></div><span class="flex items-center gap-1.5"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span><div class="inline-flex items-center gap-1.5"><span class="font-normal text-foreground">Components</span></div></nav>
+        </div>
+
+        <!-- ═══ SCROLL AREA ═══ -->
+        <div class="component-row"><div class="section-title">Scroll Area — Orientations</div>
+          <div style="display:flex;gap:1rem;">
+            <div class="relative overflow-hidden rounded-md border border-border" style="width:10rem;height:6rem;"><div class="size-full rounded-[inherit] p-2 text-sm">Vertical scroll area content. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</div><div class="flex touch-none select-none h-full w-2.5 border-l border-l-transparent p-[1px] absolute top-0 right-0"><div class="relative flex-1 rounded-full bg-border"></div></div></div>
+            <div class="relative overflow-hidden rounded-md border border-border" style="width:16rem;height:4rem;"><div class="size-full rounded-[inherit] p-2 text-sm whitespace-nowrap">Horizontal scroll area content. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div></div>
+          </div>
+        </div>
+
+        <!-- ═══ SHEET ═══ -->
+        <div class="component-row"><div class="section-title">Sheet — Sides</div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium">Open Top</button>
+            <button class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium">Open Right</button>
+            <button class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium">Open Bottom</button>
+            <button class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium">Open Left</button>
+          </div>
+          <p class="text-[10px] text-muted-foreground mt-1">Sides: top, right, bottom, left</p>
+        </div>
+
+        <!-- ═══ POPOVER ═══ -->
+        <div class="component-row"><div class="section-title">Popover</div>
+          <button class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium">Open Popover</button>
+          <div class="z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md mt-2 inline-block"><h4 class="font-medium text-sm leading-none tracking-tight">Dimensions</h4><p class="text-muted-foreground text-sm mt-1">Set the dimensions for the layer.</p></div>
+        </div>
+
+        <!-- ═══ TOOLTIP ═══ -->
+        <div class="component-row"><div class="section-title">Tooltip</div>
+          <div class="inline-flex items-center rounded-sm bg-foreground px-3 py-1.5 text-background text-xs shadow-md">Tooltip content</div>
+        </div>
+
+        <!-- ═══ TOAST ═══ -->
+        <div class="component-row"><div class="section-title">Toast — Slots (toast, description, action, cancel)</div>
+          <div class="rounded-lg border border-border bg-background text-foreground shadow-lg p-4 inline-flex items-center gap-3"><div><p class="text-sm font-medium">Event Created</p><p class="text-muted-foreground text-xs">Your event has been created.</p></div><div class="flex gap-2"><button class="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">Undo</button><button class="inline-flex items-center justify-center rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">Dismiss</button></div></div>
+        </div>
+
+        <!-- ═══ COMMAND ═══ -->
+        <div class="component-row"><div class="section-title">Command</div>
+          <div class="rounded-md border bg-popover text-popover-foreground shadow-md" style="max-width:24rem;"><div class="flex items-center border-input border-b px-3"><svg class="mr-2 size-4 shrink-0 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input class="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground" placeholder="Type a command..." /></div><div class="max-h-[330px] overflow-y-auto p-1"><div class="px-2 py-1.5 font-medium text-muted-foreground text-xs">Suggestions</div><div class="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none bg-accent text-accent-foreground"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>Calendar<span class="ml-auto text-muted-foreground text-xs tracking-widest">⌘B</span></div><div class="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Search Emoji</div></div></div>
+        </div>
+
+        <!-- ═══ HOVER CARD ═══ -->
+        <div class="component-row"><div class="section-title">Hover Card</div>
+          <a class="text-sm font-medium underline" href="#">@hovercard</a>
+          <div class="z-50 w-64 rounded-md border bg-popover p-4 text-popover-foreground shadow-md mt-2 inline-block"><div class="flex gap-3"><div class="relative flex size-10 shrink-0 overflow-hidden rounded-full"><div class="flex size-full items-center justify-center rounded-full bg-muted text-sm font-medium">TG</div></div><div><p class="text-sm font-medium">Theo</p><p class="text-xs text-muted-foreground">@theo · Building things</p><p class="text-xs text-muted-foreground mt-1">Create accessible design systems with Tailwind CSS.</p></div></div></div>
+        </div>
+
+        <!-- ═══ ALERT DIALOG ═══ -->
+        <div class="component-row"><div class="section-title">Alert Dialog</div>
+          <button class="inline-flex items-center justify-center rounded-md bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground">Show Alert Dialog</button>
+          <p class="text-[10px] text-muted-foreground mt-1">Slots: overlay, content, header, footer, title, description</p>
+        </div>
+
+        <!-- ═══ DIALOG ═══ -->
+        <div class="component-row"><div class="section-title">Dialog</div>
+          <button class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium">Open Dialog</button>
+          <p class="text-[10px] text-muted-foreground mt-1">Slots: overlay, content, close, header, footer, title, description</p>
+        </div>
+
+        <!-- ═══ ACCORDION ═══ -->
+        <div class="component-row"><div class="section-title">Accordion — Slots (item, headerWrapper, headerTrigger, contentWrapper)</div>
+          <div class="rounded-lg border border-border" style="max-width:36rem;">
+            <div class="border border-b-0 px-4 first:rounded-t-md"><div class="flex"><button class="flex flex-1 cursor-pointer items-center justify-between py-4 font-medium text-sm">Is it accessible?<svg class="size-4 shrink-0 text-muted-foreground transition-transform duration-200 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button></div><div class="overflow-hidden text-sm"><div class="pt-0 pb-4">Yes. It adheres to the WAI-ARIA design pattern.</div></div></div>
+            <div class="border border-b-0 px-4"><div class="flex"><button class="flex flex-1 cursor-pointer items-center justify-between py-4 font-medium text-sm">Is it styled?<svg class="size-4 shrink-0 text-muted-foreground transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button></div></div>
+            <div class="border px-4 last:rounded-b-md"><div class="flex"><button class="flex flex-1 cursor-pointer items-center justify-between py-4 font-medium text-sm">Is it animated?<svg class="size-4 shrink-0 text-muted-foreground transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button></div></div>
+          </div>
+        </div>
+
+        <!-- ═══ CALENDAR ═══ -->
+        <div class="component-row"><div class="section-title">Calendar</div>
+          <div class="rounded-lg border border-border bg-card p-3 inline-block">
+            <div class="relative flex w-full flex-col items-center"><div class="flex h-7 items-center justify-between w-full"><span class="font-medium text-sm tracking-tight">August 2026</span><div class="flex items-center space-x-1.5"><button class="relative size-7 items-center justify-center p-0 opacity-50 hover:opacity-100 rounded-md border border-input bg-background text-sm">‹</button><button class="relative size-7 items-center justify-center p-0 opacity-50 hover:opacity-100 rounded-md border border-input bg-background text-sm">›</button></div></div>
+            <div class="mt-4 w-full border-collapse"><div class="flex"><div class="w-8 rounded-sm font-normal text-[0.8rem] text-muted-foreground text-center">Su</div><div class="w-8 rounded-sm font-normal text-[0.8rem] text-muted-foreground text-center">Mo</div><div class="w-8 rounded-sm font-normal text-[0.8rem] text-muted-foreground text-center">Tu</div><div class="w-8 rounded-sm font-normal text-[0.8rem] text-muted-foreground text-center">We</div><div class="w-8 rounded-sm font-normal text-[0.8rem] text-muted-foreground text-center">Th</div><div class="w-8 rounded-sm font-normal text-[0.8rem] text-muted-foreground text-center">Fr</div><div class="w-8 rounded-sm font-normal text-[0.8rem] text-muted-foreground text-center">Sa</div></div>
+            <div class="mt-2 flex w-full"><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal text-muted-foreground opacity-50">26</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal text-muted-foreground opacity-50">27</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal text-muted-foreground opacity-50">28</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal text-muted-foreground opacity-50">29</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal text-muted-foreground opacity-50">30</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal text-muted-foreground opacity-50">31</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal">1</button></div></div>
+            <div class="flex w-full"><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal">2</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal">3</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal">4</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal">5</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal bg-primary text-primary-foreground">6</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal">7</button></div><div class="relative p-0 text-center text-sm"><button class="inline-flex items-center justify-center rounded-sm size-8 p-0 font-normal">8</button></div></div></div></div>
+          </div>
+        </div>
+
+        <!-- ═══ PAGINATION ═══ -->
+        <div class="component-row"><div class="section-title">Pagination — Slots (base, content, item, previous, next, ellipsis)</div>
+          <nav class="mx-auto flex w-full justify-center"><div class="flex flex-row items-center gap-1"><a class="inline-flex items-center justify-center gap-1 pl-2.5 hover:no-underline rounded-md text-sm font-medium h-9 min-w-9 px-2 hover:bg-accent" href="#">‹ Previous</a><a class="inline-flex items-center justify-center hover:no-underline rounded-md text-sm font-medium h-9 min-w-9 px-2 bg-primary text-primary-foreground" href="#">1</a><a class="inline-flex items-center justify-center hover:no-underline rounded-md text-sm font-medium h-9 min-w-9 px-2 hover:bg-accent" href="#">2</a><a class="inline-flex items-center justify-center hover:no-underline rounded-md text-sm font-medium h-9 min-w-9 px-2 hover:bg-accent" href="#">3</a><span class="flex size-9 items-center justify-center">…</span><a class="inline-flex items-center justify-center hover:no-underline rounded-md text-sm font-medium h-9 min-w-9 px-2 hover:bg-accent" href="#">10</a><a class="inline-flex items-center justify-center gap-1 pr-2.5 hover:no-underline rounded-md text-sm font-medium h-9 min-w-9 px-2 hover:bg-accent" href="#">Next ›</a></div></nav>
+        </div>
+
+        <!-- ═══ DROPDOWN MENU ═══ -->
+        <div class="component-row"><div class="section-title">Dropdown Menu</div>
+          <button class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium">Open Menu</button>
+          <div class="z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-sm mt-2 inline-block"><div class="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Edit<span class="ml-auto text-xs tracking-widest opacity-60">⌘E</span></div><div class="-mx-1 my-1 h-px bg-muted"></div><div class="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground text-destructive"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete</div></div>
+        </div>
+
+        <!-- ═══ CONTEXT MENU ═══ -->
+        <div class="component-row"><div class="section-title">Context Menu</div>
+          <div class="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Right-click here to open context menu</div>
+          <p class="text-[10px] text-muted-foreground mt-1">Same slots as dropdown: trigger, content, item, checkboxItem, radioItem, label, separator, shortcut, subTrigger, subContent</p>
+        </div>
+
+        <!-- ═══ RESIZABLE ═══ -->
+        <div class="component-row"><div class="section-title">Resizable — Slots (group, handle, handleButton)</div>
+          <div class="flex size-full data-[panel-group-direction=vertical]:flex-col rounded-md border border-border overflow-hidden" style="height:6rem;"><div class="flex-1 bg-muted/50 p-2 text-sm">Panel 1</div><div class="group relative flex w-px items-center justify-center bg-border hover:bg-foreground/20"><div class="z-10 flex h-4 w-3 items-center justify-center rounded-xs border bg-border opacity-0 transition-opacity group-hover:opacity-100"><div class="size-2.5 rotate-90">⋮</div></div></div><div class="flex-1 bg-muted/50 p-2 text-sm">Panel 2</div></div>
+        </div>
+
+        <!-- ═══ FORM ═══ -->
+        <div class="component-row"><div class="section-title">Form — Slots + error variant</div>
+          <div class="space-y-2" style="max-width:18rem;">
+            <div><label class="font-medium text-sm leading-none">Username</label><input class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs mt-1" placeholder="shadcn" /><p class="text-[0.8rem] text-muted-foreground mt-1">This is your public display name.</p></div>
+            <div><label class="font-medium text-sm leading-none text-destructive">Email (error)</label><input class="flex h-9 w-full rounded-md border border-destructive bg-transparent px-3 py-1 text-sm shadow-xs mt-1" placeholder="name@example.com" /><p class="font-medium text-[0.8rem] text-destructive mt-1">Please enter a valid email address.</p></div>
+          </div>
+        </div>
+
+        <!-- ═══ SPINNER ═══ -->
+        <div class="component-row"><div class="section-title">Spinner</div>
+          <div style="display:flex;gap:1rem;align-items:center;">
+            <svg class="animate-spin size-4 text-primary" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" class="opacity-75"/></svg>
+            <svg class="animate-spin size-6 text-primary" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" class="opacity-75"/></svg>
+            <svg class="animate-spin size-8 text-primary" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" class="opacity-75"/></svg>
+          </div>
+        </div>
+
+        <!-- ═══ SIDEBAR ═══ -->
+        <div class="component-row"><div class="section-title">Sidebar — Menu Button Variants</div>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;max-width:16rem;">
+            <div class="flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">📁 default variant</div>
+            <div class="flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">📁 outline variant</div>
+          </div>
+        </div>
+
+        <!-- ═══ ASPECT RATIO ═══ -->
+        <div class="component-row"><div class="section-title">Aspect Ratio</div>
+          <div class="relative w-full overflow-hidden rounded-md border border-border" style="max-width:18rem;aspect-ratio:16/9;background:var(--muted);"><div class="flex items-center justify-center text-sm text-muted-foreground">16:9</div></div>
+        </div>
+
+        <!-- ═══ DRAWER ═══ -->
+        <div class="component-row"><div class="section-title">Drawer</div>
+          <button class="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium">Open Drawer</button>
+          <div class="rounded-t-[10px] border bg-background p-4 mt-2 inline-block"><div class="mx-auto h-2 w-[100px] rounded-full bg-muted mb-4"></div><h4 class="font-semibold text-lg leading-none tracking-tight">Move Goal</h4><p class="text-muted-foreground text-sm mt-1">Set your daily activity goal.</p></div>
+          <p class="text-[10px] text-muted-foreground mt-1">Slots: overlay, content, handle, header, footer, title, description</p>
+        </div>
+
+        <!-- ═══ LABEL ═══ -->
+        <div class="component-row"><div class="section-title">Label</div>
+          <div style="display:flex;gap:1.5rem;align-items:center;">
+            <label class="font-medium text-sm leading-none">Default label</label>
+            <label class="font-medium text-sm leading-none opacity-70 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Disabled label</label>
+          </div>
+        </div>
+
+        <!-- ═══ COLLAPSIBLE ═══ -->
+        <div class="component-row"><div class="section-title">Collapsible</div>
+          <div class="w-full border border-border rounded-md p-2"><button class="text-sm font-medium">Toggle Content</button><div class="overflow-hidden"><p class="text-sm text-muted-foreground pt-2">Collapsible content goes here.</p></div></div>
+        </div>
+
+        <!-- ═══ SQUIRCLE ═══ -->
+        <div class="component-row"><div class="section-title">Squircle</div>
+          <div style="display:flex;gap:0.75rem;"><div class="size-12 bg-primary rounded-[25%]"></div><div class="size-12 bg-secondary rounded-[20%]"></div><div class="size-12 bg-destructive rounded-[30%]"></div><div class="size-12 bg-accent rounded-[15%]"></div></div>
+          <p class="text-[10px] text-muted-foreground mt-1">Squircle uses superellipse border-radius</p>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside class="right-panel">
+      <div class="right-panel-header"><h2>Resolved Tokens</h2><div style="display:flex;align-items:center;gap:0.375rem;"><span class="status-dot clean" id="status-dot"></span><span class="text-xs text-muted-foreground" id="status-text">Saved</span></div></div>
+      <div class="right-panel-content" id="token-state"></div>
+      <div class="right-panel-footer">
+        <button class="btn-primary" onclick="handleSave()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save to shared-ui</button>
+        <button class="btn-outline" onclick="handleCopy()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy CSS</button>
+        <button class="btn-outline" onclick="handleExport()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Preset</button>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const TOKENS = {
+      foreground: { background:'oklch(1 0 0)', foreground:'oklch(0.145 0 0)', card:'oklch(1 0 0)', 'card-foreground':'oklch(0.145 0 0)', popover:'oklch(1 0 0)', 'popover-foreground':'oklch(0.145 0 0)' },
+      background: { primary:'oklch(0.205 0 0)', 'primary-foreground':'oklch(0.985 0 0)', secondary:'oklch(0.97 0 0)', 'secondary-foreground':'oklch(0.205 0 0)', muted:'oklch(0.97 0 0)', 'muted-foreground':'oklch(0.556 0 0)', accent:'oklch(0.97 0 0)', 'accent-foreground':'oklch(0.205 0 0)', destructive:'oklch(0.577 0.245 27.325)', 'destructive-foreground':'oklch(0.985 0 0)', border:'oklch(0.922 0 0)', input:'oklch(0.922 0 0)', ring:'oklch(0.708 0 0)' },
+      chart: { 'chart-1':'oklch(0.646 0.222 41.116)', 'chart-2':'oklch(0.6 0.118 184.704)', 'chart-3':'oklch(0.398 0.07 227.392)', 'chart-4':'oklch(0.828 0.189 84.429)', 'chart-5':'oklch(0.769 0.188 70.08)' },
+      sidebar: { 'sidebar-background':'oklch(0.985 0 0)', 'sidebar-foreground':'oklch(0.145 0 0)', 'sidebar-primary':'oklch(0.205 0 0)', 'sidebar-primary-foreground':'oklch(0.985 0 0)', 'sidebar-accent':'oklch(0.97 0 0)', 'sidebar-accent-foreground':'oklch(0.205 0 0)', 'sidebar-border':'oklch(0.922 0 0)', 'sidebar-ring':'oklch(0.708 0 0)' },
+    };
+    const FONTS = { heading:{ name:'"Merriweather", Georgia, serif', url:'' }, body:{ name:'"Roboto", ui-sans-serif, sans-serif', url:'' }, mono:{ name:'"JetBrains Mono", ui-monospace, monospace', url:'' } };
+    let dirty = false;
+
+    function init() {
+      document.documentElement.style.setProperty('--font-heading', FONTS.heading.name);
+      document.documentElement.style.setProperty('--font-body', FONTS.body.name);
+      document.documentElement.style.setProperty('--font-mono', FONTS.mono.name);
+      renderColorSection('fg-colors', TOKENS.foreground);
+      renderColorSection('bg-colors', TOKENS.background);
+      renderColorSection('chart-colors', TOKENS.chart);
+      renderColorSection('sidebar-colors', TOKENS.sidebar);
+      renderComponentColors(); renderRadiusPreview(); renderTokenState();
+      document.querySelectorAll('.section-body:not(.collapsed)').forEach(el => { el.style.maxHeight = el.scrollHeight + 'px'; });
+    }
+    function renderColorSection(id, tokens) {
+      const el = document.getElementById(id); if (!el) return;
+      el.innerHTML = Object.entries(tokens).map(([k,v]) => `<div class="token-row"><span class="token-label" title="--${k}">${k}</span><input class="token-input" value="${v}" data-token="${k}" oninput="updateColor('${k}',this.value)" /><div class="color-swatch-btn" style="background:${v};"><input type="color" value="${oklchToHex(v)}" oninput="updateColorFromPicker('${k}',this.value)" /></div></div>`).join('');
+    }
+    function renderComponentColors() {
+      const el = document.getElementById('comp-colors'); if (!el) return;
+      const t = { primary:TOKENS.background.primary, 'primary-foreground':TOKENS.background['primary-foreground'], border:TOKENS.background.border, input:TOKENS.background.input, ring:TOKENS.background.ring };
+      el.innerHTML = Object.entries(t).map(([k,v]) => `<div class="token-row"><span class="token-label" title="--${k}">${k}</span><input class="token-input" value="${v}" data-token="${k}" oninput="updateColor('${k}',this.value)" /><div class="color-swatch-btn" style="background:${v};"><input type="color" value="${oklchToHex(v)}" oninput="updateColorFromPicker('${k}',this.value)" /></div></div>`).join('');
+    }
+    function updateColor(key, value) {
+      for (const g of Object.values(TOKENS)) { if (key in g) { g[key] = value; break; } }
+      document.documentElement.style.setProperty(`--${key}`, value);
+      document.querySelectorAll(`input[data-token="${key}"]`).forEach(i => i.value = value);
+      markDirty(); renderTokenState();
+    }
+    function updateColorFromPicker(key, hex) { updateColor(key, hex); }
+    function updateRadius(val) { const n = parseFloat(val); if (isNaN(n)) return; document.documentElement.style.setProperty('--radius', n + 'rem'); markDirty(); renderRadiusPreview(); renderTokenState(); }
+    function renderRadiusPreview() {
+      const el = document.getElementById('radius-preview'); if (!el) return;
+      const s = [{l:'sm',m:0.6},{l:'md',m:0.8},{l:'lg',m:1},{l:'xl',m:1.4},{l:'2xl',m:1.8},{l:'3xl',m:2.2}];
+      el.innerHTML = s.map(x => `<div class="radius-preview-item"><div class="radius-preview-box" style="border-radius:calc(var(--radius)*${x.m})"></div><span class="radius-preview-label">${x.l}</span></div>`).join('');
+    }
+    function renderTokenState() {
+      const el = document.getElementById('token-state'); if (!el) return;
+      const l = [];
+      l.push(`<div class="token-state-row"><span class="token-state-key">--font-heading</span><span class="token-state-val">${FONTS.heading.name.split(',')[0].replace(/"/g,'')}</span></div>`);
+      l.push(`<div class="token-state-row"><span class="token-state-key">--font-body</span><span class="token-state-val">${FONTS.body.name.split(',')[0].replace(/"/g,'')}</span></div>`);
+      l.push(`<div class="token-state-row"><span class="token-state-key">--font-mono</span><span class="token-state-val">${FONTS.mono.name.split(',')[0].replace(/"/g,'')}</span></div>`);
+      for (const [g,t] of Object.entries(TOKENS)) { for (const [k,v] of Object.entries(t)) { l.push(`<div class="token-state-row"><span class="token-state-key">--${k}</span><span class="token-state-val" title="${v}">${v}</span></div>`); } }
+      const rv = getComputedStyle(document.documentElement).getPropertyValue('--radius').trim() || '0.625rem';
+      l.push(`<div class="token-state-row"><span class="token-state-key">--radius</span><span class="token-state-val">${rv}</span></div>`);
+      el.innerHTML = l.join('');
+    }
+    function toggleSection(trigger) {
+      const exp = trigger.getAttribute('aria-expanded') === 'true';
+      trigger.setAttribute('aria-expanded', !exp);
+      const body = trigger.nextElementSibling;
+      if (!exp) { body.classList.remove('collapsed'); body.style.maxHeight = body.scrollHeight + 'px'; }
+      else { body.style.maxHeight = '0'; setTimeout(() => body.classList.add('collapsed'), 250); }
+    }
+    function setTheme(t) { document.querySelectorAll('#theme-toggle button').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); markDirty(); }
+    function updateFont(role, val) { FONTS[role].name = val; document.documentElement.style.setProperty(`--font-${role}`, val); markDirty(); renderTokenState(); }
+    function loadFont(role, url) { if (!url || FONTS[role].url === url) return; FONTS[role].url = url; const existing = document.getElementById(`font-link-${role}`); if (existing) existing.remove(); const link = document.createElement('link'); link.id = `font-link-${role}`; link.rel = 'stylesheet'; link.href = url; document.head.appendChild(link); markDirty(); }
+    function markDirty() { if (dirty) return; dirty = true; document.getElementById('status-dot').className = 'status-dot dirty'; document.getElementById('status-text').textContent = 'Unsaved'; }
+    function markClean() { dirty = false; document.getElementById('status-dot').className = 'status-dot clean'; document.getElementById('status-text').textContent = 'Saved'; }
+    function handleSave() { markClean(); }
+    function handleCopy() { const css = generateCSS(); navigator.clipboard.writeText(css); }
+    function handleExport() { const css = generateCSS(); const b = new Blob([css],{type:'text/css'}); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'preset.css'; a.click(); URL.revokeObjectURL(u); }
+    function generateCSS() {
+      let css = '';
+      const urls = [FONTS.heading.url, FONTS.body.url, FONTS.mono.url].filter(u => u && u.includes('fonts.googleapis.com'));
+      if (urls.length) { urls.forEach(u => { css += `@import url('${u}');\n`; }); css += '\n'; }
+      css += ':root {\n';
+      css += `  --font-heading: ${FONTS.heading.name};\n  --font-body: ${FONTS.body.name};\n  --font-mono: ${FONTS.mono.name};\n`;
+      for (const t of Object.values(TOKENS)) { for (const [k,v] of Object.entries(t)) { css += `  --${k}: ${v};\n`; } }
+      css += `  --radius: ${getComputedStyle(document.documentElement).getPropertyValue('--radius').trim()};\n}\n`;
+      return css;
+    }
+    function oklchToHex(s) { if (s.startsWith('#')) return s; try { const m = s.match(/oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)/); if (!m) return '#808080'; const [_,l,c,h] = m.map(Number); const a=c*Math.cos((h)*Math.PI/180), b=c*Math.sin((h)*Math.PI/180); const L=l+0.3963*a+0.2158*b, M=l-0.1056*a-0.0639*b, S=l-0.0895*a-1.2915*b; const l_=L*L*L, m_=M*M*M, s_=S*S*S; let r=4.0767*l_-3.3077*m_+0.231*s_, g=-1.2684*l_+2.6098*m_-0.3413*s_, bl=-0.0042*l_-0.7034*m_+1.7076*s_; r=Math.min(1,Math.max(0,r)); g=Math.min(1,Math.max(0,g)); bl=Math.min(1,Math.max(0,bl)); const h2=v=>Math.round(v*255).toString(16).padStart(2,'0'); return `#${h2(r)}${h2(g)}${h2(bl)}`; } catch { return '#808080'; } }
+    init();
+  </script>
+</body>
+</html>
