@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useAddonState, useChannel } from 'storybook/manager-api';
 import { DEFAULT_TOKENS, DARK_MODE_OVERRIDES, ADDON_ID, EVENT_KEY, TOKEN_GROUPS } from '../constants';
-import { applyTokens, exportTokens, downloadFile, copyToClipboard } from '../tokenUtils';
+import { applyTokens, generateCSS, downloadFile, copyToClipboard } from '../tokenUtils';
 import type { ExportFormat } from '../types';
 import '../styles/addon.css';
 
@@ -52,11 +52,7 @@ export const ThemeEditor: React.FC = () => {
 
   // Handle export
   const handleExport = useCallback((format: ExportFormat) => {
-    const content = exportTokens(tokens, {
-      format,
-      includeFonts: true,
-      includeDarkMode: true,
-    });
+    const content = generateCSS(tokens, DARK_MODE_OVERRIDES, true);
 
     const filenames: Record<ExportFormat, string> = {
       json: 'theme-preset.json',
@@ -75,11 +71,7 @@ export const ThemeEditor: React.FC = () => {
 
   // Handle copy CSS
   const handleCopyCSS = useCallback(async () => {
-    const css = exportTokens(tokens, {
-      format: 'css',
-      includeFonts: true,
-      includeDarkMode: true,
-    });
+    const css = generateCSS(tokens, DARK_MODE_OVERRIDES, true);
     await copyToClipboard(css);
   }, [tokens]);
 
@@ -87,23 +79,14 @@ export const ThemeEditor: React.FC = () => {
     <div className="theme-editor-panel" style={{ height: '100%', overflowY: 'auto' }}>
       {/* Header */}
       <div className="theme-editor-header">
-        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>🎨 Theme Editor</h3>
+        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#000' }}>🎨 Theme Editor</h3>
         <ThemeToggle theme={theme} onToggle={handleThemeToggle} />
       </div>
 
-      {/* Preset Manager */}
-      <React.Suspense fallback={<div>Loading presets...</div>}>
+      {/* Preset Manager - Save functionality */}
+      <React.Suspense fallback={<div>Loading...</div>}>
         <PresetManager
           currentTokens={tokens}
-          onLoadPreset={(preset) => {
-            setTokens(preset.light);
-            setHasChanges(true);
-            emit(EVENT_KEY, preset.light);
-          }}
-          onSavePreset={(name) => {
-            // Save preset logic
-            console.log('Save preset:', name);
-          }}
         />
       </React.Suspense>
 
@@ -144,22 +127,10 @@ export const ThemeEditor: React.FC = () => {
             background: '#fff',
             cursor: 'pointer',
             fontSize: '12px',
+            color: '#000',
           }}
         >
-          Reset
-        </button>
-        <button
-          onClick={handleCopyCSS}
-          style={{
-            padding: '8px 12px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            background: '#fff',
-            cursor: 'pointer',
-            fontSize: '12px',
-          }}
-        >
-          Copy CSS
+          🔄 Reset
         </button>
         <button
           onClick={() => handleExport('json')}
@@ -170,22 +141,10 @@ export const ThemeEditor: React.FC = () => {
             background: '#fff',
             cursor: 'pointer',
             fontSize: '12px',
+            color: '#000',
           }}
         >
-          Export JSON
-        </button>
-        <button
-          onClick={() => handleExport('css')}
-          style={{
-            padding: '8px 12px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            background: '#fff',
-            cursor: 'pointer',
-            fontSize: '12px',
-          }}
-        >
-          Export CSS
+          📄 Export JSON
         </button>
       </div>
 
@@ -198,6 +157,7 @@ export const ThemeEditor: React.FC = () => {
           border: '1px solid #ffc107',
           borderRadius: '4px',
           fontSize: '12px',
+          color: '#000',
         }}>
           ⚠️ You have unsaved changes
         </div>
