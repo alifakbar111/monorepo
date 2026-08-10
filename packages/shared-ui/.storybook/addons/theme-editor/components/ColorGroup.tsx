@@ -1,19 +1,16 @@
-import React, { useState } from 'react';
-import type { TokenGroup } from '../types';
-import ColorPicker from './ColorPicker';
+import React, { useState } from 'react'
+
+import type { TokenGroup } from '../types'
+import ColorPicker from './ColorPicker'
 
 interface ColorGroupProps {
-  group: TokenGroup;
-  tokens: Record<string, string>;
-  onUpdate: (key: string, value: string) => void;
+  group: TokenGroup
+  tokens: Record<string, string>
+  onUpdate: (key: string, value: string) => void
 }
 
-export const ColorGroup: React.FC<ColorGroupProps> = ({
-  group,
-  tokens,
-  onUpdate,
-}) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+export const ColorGroup: React.FC<ColorGroupProps> = ({ group, tokens, onUpdate }) => {
+  const [isExpanded, setIsExpanded] = useState(true)
 
   return (
     <div style={{ marginBottom: '12px' }}>
@@ -35,11 +32,16 @@ export const ColorGroup: React.FC<ColorGroupProps> = ({
           textAlign: 'left',
         }}
       >
-        <span style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+        <span
+          style={{
+            transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+            transition: 'transform 0.2s',
+          }}
+        >
           ▶
         </span>
         {group.label}
-        <span style={{ marginLeft: 'auto', color: '#666', fontWeight: 400 }}>
+        <span style={{ marginLeft: 'auto', color: '#000000', fontWeight: 400 }}>
           {group.tokens.length}
         </span>
       </button>
@@ -59,7 +61,7 @@ export const ColorGroup: React.FC<ColorGroupProps> = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default ColorGroup;
+export default ColorGroup

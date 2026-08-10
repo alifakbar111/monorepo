@@ -53,7 +53,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0' }}>
       {/* Label */}
-      <span style={{ flex: 1, fontSize: '12px', color: '#333' }}>{label}</span>
+      <span style={{ flex: 1, fontSize: '12px', color: '#000000' }}>{label}</span>
 
       {/* Color Swatch */}
       <button
