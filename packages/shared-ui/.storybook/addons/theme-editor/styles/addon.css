@@ -1,0 +1,239 @@
+/* Theme Editor Addon Styles */
+
+.theme-editor-panel {
+  padding: 16px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.theme-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.theme-editor-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Color Picker */
+.color-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.color-picker-label {
+  flex: 1;
+  font-size: 12px;
+  color: #333;
+}
+
+.color-swatch {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.color-input {
+  width: 140px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: monospace;
+}
+
+/* Slider Input */
+.slider-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.slider-input-label {
+  width: 100px;
+  font-size: 12px;
+  color: #333;
+}
+
+.slider-input-range {
+  flex: 1;
+}
+
+.slider-input-value {
+  width: 80px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: monospace;
+  text-align: right;
+}
+
+/* Group Header */
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  background: #f5f5f5;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.group-header:hover {
+  background: #e8e8e8;
+}
+
+.group-header-icon {
+  transition: transform 0.2s;
+}
+
+.group-header-icon.expanded {
+  transform: rotate(90deg);
+}
+
+/* Preset Manager */
+.preset-manager {
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+.preset-manager-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.preset-select {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.preset-save-input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+  display: flex;
+  gap: 4px;
+}
+
+.theme-toggle-button {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.theme-toggle-button.active {
+  background: #007bff;
+  border-color: #007bff;
+  color: #fff;
+}
+
+/* Font Selector */
+.font-selector {
+  margin-bottom: 8px;
+}
+
+.font-selector-label {
+  display: block;
+  font-size: 12px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.font-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.font-tag-remove {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.font-quick-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.font-quick-add-button {
+  padding: 2px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+/* Actions */
+.theme-editor-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.theme-editor-button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.theme-editor-button:hover {
+  background: #f5f5f5;
+}
+
+/* Status */
+.theme-editor-status {
+  margin-top: 12px;
+  padding: 8px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  font-size: 12px;
+}
