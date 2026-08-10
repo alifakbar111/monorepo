@@ -30,6 +30,7 @@ export const ColorGroup: React.FC<ColorGroupProps> = ({ group, tokens, onUpdate 
           fontSize: '12px',
           fontWeight: 600,
           textAlign: 'left',
+          color: '#000000',
         }}
       >
         <span
