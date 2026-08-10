@@ -7,7 +7,9 @@ import { DEFAULT_TOKENS, DARK_MODE_OVERRIDES } from './constants';
 export function applyTokens(tokens: Record<string, string>): void {
   const root = document.documentElement;
   Object.entries(tokens).forEach(([key, value]) => {
-    root.style.setProperty(key, value);
+    // Ensure size tokens have proper units for live preview
+    const finalValue = ensureUnit(value, key);
+    root.style.setProperty(key, finalValue);
   });
 }
 
@@ -23,11 +25,44 @@ export function clearTokens(): void {
 }
 
 /**
+ * Check if a token is a size token that needs a unit
+ */
+function isSizeToken(key: string): boolean {
+  return [
+    '--radius',
+    '--spacing',
+    '--sidebar-width',
+    '--sidebar-width-mobile',
+    '--sidebar-width-icon',
+  ].includes(key);
+}
+
+/**
+ * Ensure size tokens have proper units (rem)
+ */
+function ensureUnit(value: string, key: string): string {
+  // If it already has a unit, return as-is
+  if (/\d(rem|px|em|%)$/.test(value)) {
+    return value;
+  }
+  
+  // If it's a size token without unit, add rem
+  if (isSizeToken(key)) {
+    const num = parseFloat(value);
+    if (!isNaN(num)) {
+      return `${num}rem`;
+    }
+  }
+  
+  return value;
+}
+
+/**
  * Generate CSS variables string from tokens
  */
 export function generateCSSVariables(tokens: Record<string, string>): string {
   return Object.entries(tokens)
-    .map(([key, value]) => `\t\t${key}: ${value};`)
+    .map(([key, value]) => `\t\t${key}: ${ensureUnit(value, key)};`)
     .join('\n');
 }
 

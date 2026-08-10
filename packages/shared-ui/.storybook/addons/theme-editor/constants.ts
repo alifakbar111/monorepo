@@ -67,10 +67,10 @@ export const DEFAULT_TOKENS: Record<string, string> = {
   '--error-foreground': 'oklch(0.98 0.003 252.11)',
 
   // Border Radius
-  '--radius': '0.6rem',
+  '--radius': '0.6',
 
   // Spacing
-  '--spacing': '0.25rem',
+  '--spacing': '0.25',
 
   // Typography
   '--font-sans': '"Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
