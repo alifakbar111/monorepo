@@ -60,3 +60,13 @@ Finally, add the following to your `moon.yml` file:
 dependsOn:
   - 'shared-ui'
 ```
+
+## Theming & design tokens
+
+Design tokens (colors, border radius, spacing, sidebar width, fonts) live in
+`src/styles/colors.css`, `global.css`, and `fontface.css`. Run Storybook
+(`pnpm --filter shared-ui storybook`) and open the **Theme Editor** panel to
+edit tokens live and sync them straight back into those files — see
+[`.storybook/addons/theme-editor/README.md`](./.storybook/addons/theme-editor/README.md)
+for how it works, including the font Name-vs-URL fields and the rem/px size
+inputs. It's a dev-only Storybook addon and never ships to production.
