@@ -9,21 +9,52 @@ import '../styles/addon.css';
 const ColorGroup = React.lazy(() => import('./ColorGroup'));
 const TypographyGroup = React.lazy(() => import('./TypographyGroup'));
 const PresetManager = React.lazy(() => import('./PresetManager'));
-const ThemeToggle = React.lazy(() => import('./ThemeToggle'));
 
 export const ThemeEditor: React.FC = () => {
   const [tokens, setTokens] = useAddonState<Record<string, string>>(
     `${ADDON_ID}/tokens`,
     DEFAULT_TOKENS
   );
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  // Maps a font role token (--font-heading/--font-sans/--font-mono) to the
+  // stylesheet URL that loads it (Google Fonts CSS2 link, Fontsource CSS link,
+  // etc). Synced into fontface.css as @import rules on save.
+  const [fontSourceUrls, setFontSourceUrls] = useAddonState<Record<string, string>>(
+    `${ADDON_ID}/font-source-urls`,
+    {}
+  );
   const [hasChanges, setHasChanges] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const emit = useChannel({});
 
   // Apply tokens when they change
   useEffect(() => {
     applyTokens(tokens);
   }, [tokens]);
+
+  // Load the actual current values from colors.css/global.css on mount.
+  // DEFAULT_TOKENS is a static snapshot that drifts the moment either file
+  // changes by any means other than a fresh accurate re-snapshot (a previous
+  // Save & Sync, a hand-edit, a git pull, ...) - this replaces that snapshot
+  // with what's really on disk, which is what the Storybook preview itself
+  // actually renders from.
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch('/theme-sync')
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error('non-200 response'))))
+      .then((data: { light?: Record<string, string> }) => {
+        if (cancelled || !data.light) return;
+        setTokens({ ...DEFAULT_TOKENS, ...data.light });
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Handle token update
   const handleTokenUpdate = useCallback((key: string, value: string) => {
@@ -32,22 +63,25 @@ export const ThemeEditor: React.FC = () => {
     emit(EVENT_KEY, { ...tokens, [key]: value });
   }, [tokens, setTokens, emit]);
 
-  // Handle theme toggle
-  const handleThemeToggle = useCallback((newTheme: 'light' | 'dark') => {
-    setTheme(newTheme);
-    if (newTheme === 'dark') {
-      applyTokens(DARK_MODE_OVERRIDES);
-    } else {
-      applyTokens(tokens);
-    }
-  }, [tokens]);
+  // Handle font source URL update (or removal when url is empty)
+  const handleFontSourceUrlUpdate = useCallback((key: string, url: string) => {
+    setFontSourceUrls((prev) => {
+      if (!url) {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      }
+      return { ...prev, [key]: url };
+    });
+  }, [setFontSourceUrls]);
 
   // Handle reset to defaults
   const handleReset = useCallback(() => {
     setTokens(DEFAULT_TOKENS);
+    setFontSourceUrls({});
     setHasChanges(false);
     emit(EVENT_KEY, DEFAULT_TOKENS);
-  }, [setTokens, emit]);
+  }, [setTokens, setFontSourceUrls, emit]);
 
   // Handle export
   const handleExport = useCallback((format: ExportFormat) => {
@@ -79,13 +113,13 @@ export const ThemeEditor: React.FC = () => {
       {/* Header */}
       <div className="theme-editor-header">
         <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#000' }}>🎨 Theme Editor</h3>
-        <ThemeToggle theme={theme} onToggle={handleThemeToggle} />
       </div>
 
       {/* Preset Manager - Save functionality */}
       <React.Suspense fallback={<div>Loading...</div>}>
         <PresetManager
           currentTokens={tokens}
+          fontSourceUrls={fontSourceUrls}
         />
       </React.Suspense>
 
@@ -105,6 +139,8 @@ export const ThemeEditor: React.FC = () => {
           <TypographyGroup
             tokens={tokens}
             onUpdate={handleTokenUpdate}
+            fontSourceUrls={fontSourceUrls}
+            onSourceUrlUpdate={handleFontSourceUrlUpdate}
           />
         </React.Suspense>
       </div>
@@ -140,6 +176,21 @@ export const ThemeEditor: React.FC = () => {
           📄 Export JSON
         </button>
       </div>
+
+      {/* Load error indicator */}
+      {loadError && (
+        <div style={{
+          marginTop: '12px',
+          padding: '8px',
+          background: '#f8d7da',
+          border: '1px solid #dc3545',
+          borderRadius: '4px',
+          fontSize: '12px',
+          color: '#721c24',
+        }}>
+          ✗ Couldn't load current values from colors.css/global.css - showing built-in defaults, which may not match what's actually on disk. Check the Storybook dev server is running.
+        </div>
+      )}
 
       {/* Status indicator */}
       {hasChanges && (

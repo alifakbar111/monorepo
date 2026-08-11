@@ -97,6 +97,7 @@ blob-report/
 # Storybook
 *storybook.log
 storybook-static/
+theme-changes.json
 
 # Miscellaneous
 pnpm-exec-summary.json

@@ -3,15 +3,16 @@ import { DARK_MODE_OVERRIDES } from '../constants';
 
 interface PresetManagerProps {
   currentTokens: Record<string, string>;
+  fontSourceUrls: Record<string, string>;
 }
 
-export const PresetManager: React.FC<PresetManagerProps> = ({ currentTokens }) => {
+export const PresetManager: React.FC<PresetManagerProps> = ({ currentTokens, fontSourceUrls }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [autoSync, setAutoSync] = useState(true);
 
   /**
-   * Save theme changes to JSON file for sync script
+   * Save theme changes via the /theme-sync dev-server endpoint
    */
   const handleSaveToSource = useCallback(async () => {
     setIsSaving(true);
@@ -22,10 +23,10 @@ export const PresetManager: React.FC<PresetManagerProps> = ({ currentTokens }) =
       const themeData = {
         light: currentTokens,
         dark: DARK_MODE_OVERRIDES,
+        fontSourceUrls,
         lastUpdated: new Date().toISOString(),
       };
 
-      // Save to the storybook directory for the sync script to pick up
       const response = await fetch('/theme-sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -36,25 +37,26 @@ export const PresetManager: React.FC<PresetManagerProps> = ({ currentTokens }) =
         setSaveMessage('✓ Theme saved! CSS files will update automatically.');
         setTimeout(() => setSaveMessage(''), 5000);
       } else {
-        // Fallback: download as JSON for manual sync
+        // Fallback: download as JSON backup since the endpoint rejected the request
         downloadThemeJSON(themeData);
-        setSaveMessage('✓ Downloaded theme.json - Run: pnpm sync-theme');
-        setTimeout(() => setSaveMessage(''), 5000);
+        setSaveMessage('✗ Save failed - downloaded theme-changes.json as a backup. Check the Storybook dev server is running and retry.');
+        setTimeout(() => setSaveMessage(''), 6000);
       }
     } catch (error) {
-      // Fallback: download as JSON
+      // Fallback: download as JSON backup since the request itself couldn't reach the server
       const themeData = {
         light: currentTokens,
         dark: DARK_MODE_OVERRIDES,
+        fontSourceUrls,
         lastUpdated: new Date().toISOString(),
       };
       downloadThemeJSON(themeData);
-      setSaveMessage('✓ Downloaded theme.json - Run: pnpm sync-theme');
-      setTimeout(() => setSaveMessage(''), 5000);
+      setSaveMessage('✗ Save failed - downloaded theme-changes.json as a backup. Check the Storybook dev server is running and retry.');
+      setTimeout(() => setSaveMessage(''), 6000);
     } finally {
       setIsSaving(false);
     }
-  }, [currentTokens]);
+  }, [currentTokens, fontSourceUrls]);
 
   /**
    * Download theme as JSON file
@@ -158,17 +160,19 @@ export const PresetManager: React.FC<PresetManagerProps> = ({ currentTokens }) =
 
       {/* Instructions */}
       <div style={{ marginTop: '8px', fontSize: '11px', color: '#666' }}>
-        <strong>Auto mode:</strong> Click "Save & Sync" to update{' '}
+        Click "Save & Sync" to update{' '}
         <code style={{ background: '#e9ecef', padding: '2px 4px', borderRadius: '2px' }}>
-          src/styles/colors.css
+          colors.css
         </code>
-        {' '}automatically.
-        <br />
-        <strong>Manual mode:</strong> Run{' '}
+        {', '}
         <code style={{ background: '#e9ecef', padding: '2px 4px', borderRadius: '2px' }}>
-          pnpm sync-theme
+          global.css
         </code>
-        {' '}to sync downloaded JSON.
+        {' '}and{' '}
+        <code style={{ background: '#e9ecef', padding: '2px 4px', borderRadius: '2px' }}>
+          fontface.css
+        </code>
+        {' '}automatically. Requires the Storybook dev server to be running.
       </div>
     </div>
   );

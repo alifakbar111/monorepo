@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import FontSelector from './FontSelector';
+import FontRoleInput from './FontRoleInput';
 
 interface TypographyGroupProps {
   tokens: Record<string, string>;
   onUpdate: (key: string, value: string) => void;
+  fontSourceUrls: Record<string, string>;
+  onSourceUrlUpdate: (key: string, url: string) => void;
 }
 
 export const TypographyGroup: React.FC<TypographyGroupProps> = ({
   tokens,
   onUpdate,
+  fontSourceUrls,
+  onSourceUrlUpdate,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -42,17 +46,29 @@ export const TypographyGroup: React.FC<TypographyGroupProps> = ({
       {/* Token List */}
       {isExpanded && (
         <div style={{ padding: '8px 0' }}>
-          <FontSelector
-            label="Sans Serif Font"
+          <FontRoleInput
+            label="Heading Font"
+            tokenKey="--font-heading"
+            value={tokens['--font-heading'] || ''}
+            onChange={(value) => onUpdate('--font-heading', value)}
+            sourceUrl={fontSourceUrls['--font-heading'] || ''}
+            onSourceUrlChange={(url) => onSourceUrlUpdate('--font-heading', url)}
+          />
+          <FontRoleInput
+            label="Body / Text Font"
             tokenKey="--font-sans"
             value={tokens['--font-sans'] || ''}
             onChange={(value) => onUpdate('--font-sans', value)}
+            sourceUrl={fontSourceUrls['--font-sans'] || ''}
+            onSourceUrlChange={(url) => onSourceUrlUpdate('--font-sans', url)}
           />
-          <FontSelector
-            label="Monospace Font"
+          <FontRoleInput
+            label="Mono Font"
             tokenKey="--font-mono"
             value={tokens['--font-mono'] || ''}
             onChange={(value) => onUpdate('--font-mono', value)}
+            sourceUrl={fontSourceUrls['--font-mono'] || ''}
+            onSourceUrlChange={(url) => onSourceUrlUpdate('--font-mono', url)}
           />
         </div>
       )}

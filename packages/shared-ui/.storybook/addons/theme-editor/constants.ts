@@ -67,12 +67,16 @@ export const DEFAULT_TOKENS: Record<string, string> = {
   '--error-foreground': 'oklch(0.98 0.003 252.11)',
 
   // Border Radius
-  '--radius': '0.6',
+  '--radius': '0.6rem',
 
   // Spacing
-  '--spacing': '0.25',
+  '--spacing': '0.25rem',
 
   // Typography
+  // --font-heading defaults to the same value as --font-sans: headings currently
+  // render as the body font via inheritance (the token didn't exist until this
+  // was added), so this keeps that identical until someone deliberately changes it.
+  '--font-heading': '"Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
   '--font-sans': '"Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
   '--font-mono': '"JetBrains Mono", ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace',
 
@@ -162,14 +166,18 @@ export const TOKEN_DEFINITIONS: TokenDefinition[] = [
   { key: '--border', label: 'Border', type: 'color', group: 'border', defaultValue: DEFAULT_TOKENS['--border'] },
   { key: '--input', label: 'Input', type: 'color', group: 'border', defaultValue: DEFAULT_TOKENS['--input'] },
   { key: '--ring', label: 'Ring', type: 'color', group: 'border', defaultValue: DEFAULT_TOKENS['--ring'] },
-  { key: '--radius', label: 'Border Radius', type: 'size', group: 'border', defaultValue: DEFAULT_TOKENS['--radius'], min: 0, max: 2, step: 0.1, unit: 'rem' },
+  { key: '--radius', label: 'Border Radius', type: 'size', group: 'border', defaultValue: DEFAULT_TOKENS['--radius'], unit: 'rem' },
 
-  // Spacing
-  { key: '--spacing', label: 'Spacing', type: 'size', group: 'spacing', defaultValue: DEFAULT_TOKENS['--spacing'], min: 0.1, max: 1, step: 0.05, unit: 'rem' },
+  // Spacing & Layout
+  { key: '--spacing', label: 'Spacing', type: 'size', group: 'spacing', defaultValue: DEFAULT_TOKENS['--spacing'], unit: 'rem' },
+  { key: '--sidebar-width', label: 'Sidebar Width', type: 'size', group: 'spacing', defaultValue: DEFAULT_TOKENS['--sidebar-width'], unit: 'rem' },
+  { key: '--sidebar-width-mobile', label: 'Sidebar Width (Mobile)', type: 'size', group: 'spacing', defaultValue: DEFAULT_TOKENS['--sidebar-width-mobile'], unit: 'rem' },
+  { key: '--sidebar-width-icon', label: 'Sidebar Width (Icon)', type: 'size', group: 'spacing', defaultValue: DEFAULT_TOKENS['--sidebar-width-icon'], unit: 'rem' },
 
   // Typography
-  { key: '--font-sans', label: 'Sans Serif Font', type: 'font', group: 'typography', defaultValue: DEFAULT_TOKENS['--font-sans'] },
-  { key: '--font-mono', label: 'Monospace Font', type: 'font', group: 'typography', defaultValue: DEFAULT_TOKENS['--font-mono'] },
+  { key: '--font-heading', label: 'Heading Font', type: 'font', group: 'typography', defaultValue: DEFAULT_TOKENS['--font-heading'] },
+  { key: '--font-sans', label: 'Body / Text Font', type: 'font', group: 'typography', defaultValue: DEFAULT_TOKENS['--font-sans'] },
+  { key: '--font-mono', label: 'Mono Font', type: 'font', group: 'typography', defaultValue: DEFAULT_TOKENS['--font-mono'] },
 ];
 
 // Token groups for UI organization
@@ -180,7 +188,7 @@ export const TOKEN_GROUPS: TokenGroup[] = [
   { id: 'neutral', label: 'Neutral Colors', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'neutral') },
   { id: 'status', label: 'Status Colors', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'status') },
   { id: 'border', label: 'Border & Radius', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'border') },
-  { id: 'spacing', label: 'Spacing', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'spacing') },
+  { id: 'spacing', label: 'Spacing & Layout', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'spacing') },
   { id: 'typography', label: 'Typography', tokens: TOKEN_DEFINITIONS.filter(t => t.group === 'typography') },
 ];
 

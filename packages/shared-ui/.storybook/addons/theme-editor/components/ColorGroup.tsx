@@ -2,22 +2,13 @@ import React, { useState } from 'react'
 
 import type { TokenGroup, TokenDefinition } from '../types'
 import ColorPicker from './ColorPicker'
-import SliderInput from './SliderInput'
+import SizeInput from './SizeInput'
 
 interface ColorGroupProps {
   group: TokenGroup
   tokens: Record<string, string>
   onUpdate: (key: string, value: string) => void
 }
-
-// Helper to strip unit from value for display
-const stripUnit = (value: string, unit: string): string => {
-  if (value.endsWith(unit)) {
-    return value.slice(0, -unit.length);
-  }
-  const match = value.match(/^([\d.]+)/);
-  return match ? match[1] : value;
-};
 
 export const ColorGroup: React.FC<ColorGroupProps> = ({ group, tokens, onUpdate }) => {
   const [isExpanded, setIsExpanded] = useState(true)
@@ -26,18 +17,14 @@ export const ColorGroup: React.FC<ColorGroupProps> = ({ group, tokens, onUpdate 
   const renderToken = (token: TokenDefinition) => {
     const value = tokens[token.key] || token.defaultValue;
 
-    // Size tokens use slider
-    if (token.type === 'size' && token.min !== undefined && token.max !== undefined && token.unit) {
+    // Size tokens use a number + rem/px unit input
+    if (token.type === 'size') {
       return (
-        <SliderInput
+        <SizeInput
           key={token.key}
           label={token.label}
           tokenKey={token.key}
-          value={stripUnit(value, token.unit)}
-          min={token.min}
-          max={token.max}
-          step={token.step || 0.1}
-          unit={token.unit}
+          value={value}
           onChange={(newValue) => onUpdate(token.key, newValue)}
         />
       );

@@ -22,8 +22,7 @@
         "prepublishOnly": "pnpm run build:vite",
         "lint": "oxlint --fix .",
         "check": "oxlint --fix . && oxfmt .",
-        "typecheck": "tsc --noEmit",
-        "sync-theme": "node scripts/sync-theme.js"
+        "typecheck": "tsc --noEmit"
     },
     "dependencies": {
         "@nanostores/persistent": "^1.3.3",
@@ -47,11 +46,11 @@
     },
     "devDependencies": {
         "@hookform/resolvers": "^5.2.2",
-        "@storybook/addon-a11y": "10.3.3",
-        "@storybook/addon-docs": "10.3.3",
-        "@storybook/addon-links": "10.3.3",
-        "@storybook/addon-themes": "10.3.3",
-        "@storybook/react-vite": "10.3.3",
+        "@storybook/addon-a11y": "10.5.7",
+        "@storybook/addon-docs": "10.5.7",
+        "@storybook/addon-links": "10.5.7",
+        "@storybook/addon-themes": "10.5.7",
+        "@storybook/react-vite": "10.5.7",
         "@tailwindcss/vite": "^4.2.2",
         "@types/node": "^25.5.0",
         "@types/react": "^19.2.14",
@@ -64,7 +63,7 @@
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
         "std-env": "^4.0.0",
-        "storybook": "10.3.3",
+        "storybook": "10.5.7",
         "tailwind-variants": "^3.2.2",
         "tailwindcss": "^4.2.2",
         "tailwindcss-motion": "^1.1.1",

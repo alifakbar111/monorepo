@@ -1,9 +1,7 @@
 export { ThemeEditor } from './ThemeEditor';
 export { ColorGroup } from './ColorGroup';
 export { ColorPicker } from './ColorPicker';
-export { SizeGroup } from './SizeGroup';
-export { SliderInput } from './SliderInput';
+export { SizeInput } from './SizeInput';
 export { TypographyGroup } from './TypographyGroup';
-export { FontSelector } from './FontSelector';
+export { FontRoleInput } from './FontRoleInput';
 export { PresetManager } from './PresetManager';
-export { ThemeToggle } from './ThemeToggle';
